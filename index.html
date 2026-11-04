@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/logo-icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Michroma&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -26,41 +26,110 @@
       <polygon points="8,80 85,7 85,237 8,312" fill="url(#lg-a)"/>
       <polygon points="38,322 142,217 195,217 282,322" fill="url(#lg-b)"/>
     </symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
-<header class="topbar">
-  <a class="brand" href="#topo" aria-label="Landora">
-    <svg class="brand-icon" aria-hidden="true"><use href="#logo-icon"/></svg>
-    <span class="brand-word">LANDORA</span>
-  </a>
-  <div class="topbar-meta">
-    <span class="pill" id="validade"></span>
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="bg" aria-hidden="true">
+  <span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span>
+  <span class="grid-lines"></span>
+</div>
+
+<header class="topbar-wrap">
+  <div class="topbar">
+    <a class="brand" href="#topo" aria-label="Landora">
+      <svg class="brand-icon" aria-hidden="true"><use href="#logo-icon"/></svg>
+      <span class="brand-word">LANDORA</span>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#vitrine">Módulos</a>
+      <a href="#como">Como funciona</a>
+      <a href="#contrato">Contrato</a>
+    </nav>
+    <div class="topbar-meta">
+      <span class="pill" id="validade"></span>
+      <a class="btn btn-primary btn-sm btn-arrow" href="#vitrine">Começar <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+    </div>
   </div>
 </header>
 
 <main id="topo">
   <section class="hero">
-    <p class="eyebrow">Proposta personalizada</p>
-    <h1>Monte o app de <span class="accent" id="cliente-nome">seu negócio</span>, módulo por módulo.</h1>
-    <p class="lead">Escolha o que entra agora no contrato e o que você quer deixar para depois. Cada módulo tem seu valor, e o total se atualiza na hora.</p>
-
-    <div class="how">
-      <div class="how-item">
-        <span class="how-badge how-now">1</span>
-        <div><strong>Contrato</strong><span>O que você quer desde o início, com assinatura.</span></div>
+    <div class="hero-copy">
+      <p class="badge rise" style="--d:0"><span class="live-dot"></span>Proposta personalizada</p>
+      <h1 class="rise" style="--d:1">Monte o app de <span class="grad-text" id="cliente-nome">seu negócio</span>, módulo por módulo.</h1>
+      <p class="lead rise" style="--d:2">Escolha o que entra agora no contrato e o que você quer deixar para depois. Cada módulo tem seu valor, e o total se atualiza na hora.</p>
+      <div class="hero-cta rise" style="--d:3">
+        <a class="btn btn-primary btn-lg btn-arrow" href="#vitrine">Escolher módulos <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+        <a class="btn btn-ghost btn-lg" href="#como">Como funciona</a>
       </div>
-      <div class="how-item">
-        <span class="how-badge how-later">2</span>
-        <div><strong>Depois</strong><span>O que te interessa, mas não agora. Fica reservado.</span></div>
+      <p class="hero-note rise" style="--d:4">Landing pages built to convert</p>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hv-glow"></div>
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <svg class="hv-logo"><use href="#logo-icon"/></svg>
+
+      <div class="float-card fc-1">
+        <small>Contrato</small>
+        <b id="hv-now">R$ 0,00</b>
+        <span><i id="hv-now-n">0</i> módulos</span>
+      </div>
+      <div class="float-card fc-2">
+        <small>Reservado</small>
+        <b id="hv-later">R$ 0,00</b>
+        <span><i id="hv-later-n">0</i> para depois</span>
+      </div>
+      <div class="float-card fc-3">
+        <small>Recorrência</small>
+        <b id="hv-mensal">R$ 0,00</b>
+        <span>por mês</span>
+        <div class="spark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
   </section>
 
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+  <section class="como" id="como" aria-labelledby="como-titulo">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Passo a passo</p>
+      <h2 id="como-titulo">Simples como montar um carrinho</h2>
+    </div>
+    <div class="steps">
+      <article class="step reveal" style="--d:0">
+        <span class="step-n">01</span>
+        <div class="step-vis v1"><i></i><i></i><i></i></div>
+        <h3>Escolha os módulos</h3>
+        <p>Navegue pela vitrine e veja o valor de cada recurso do seu app.</p>
+      </article>
+      <article class="step reveal" style="--d:1">
+        <span class="step-n">02</span>
+        <div class="step-vis v2"><b>Contrato</b><b class="dashed">Depois</b></div>
+        <h3>Separe em dois carrinhos</h3>
+        <p>O que entra agora no contrato e o que fica reservado para o futuro.</p>
+      </article>
+      <article class="step reveal" style="--d:2">
+        <span class="step-n">03</span>
+        <div class="step-vis v3">
+          <svg viewBox="0 0 120 40" aria-hidden="true"><path d="M4 28 C14 6 20 6 18 22 S30 36 42 22 S58 10 66 24 S84 34 96 20 S112 14 116 22"/></svg>
+        </div>
+        <h3>Assine e pronto</h3>
+        <p>Assinatura na própria página, com resumo em PDF e envio direto para a Landora.</p>
+      </article>
+    </div>
+  </section>
+
   <div class="layout">
-    <section class="vitrine" aria-labelledby="vitrine-titulo">
-      <div class="vitrine-head">
-        <h2 id="vitrine-titulo">Vitrine de módulos</h2>
+    <section class="vitrine" id="vitrine" aria-labelledby="vitrine-titulo">
+      <div class="vitrine-head reveal">
+        <div>
+          <p class="eyebrow">Vitrine</p>
+          <h2 id="vitrine-titulo">Módulos para o seu app</h2>
+        </div>
         <div class="filters" id="filtros" role="tablist" aria-label="Categorias"></div>
       </div>
       <div class="grid" id="grid"></div>
@@ -76,23 +145,29 @@
         <div class="cart-block">
           <div class="cart-title"><span class="dot dot-now"></span>Contrato <small>(agora)</small></div>
           <ul class="cart-list" id="lista-now"></ul>
-          <div class="cart-total" id="total-now"></div>
+          <div class="cart-total">
+            <div class="row big"><span>Total do contrato</span><b id="tn-unico">R$ 0,00</b></div>
+            <div class="row"><span>Recorrência</span><span><span id="tn-mensal">R$ 0,00</span>/mês</span></div>
+          </div>
         </div>
 
         <div class="cart-block cart-block-later">
           <div class="cart-title"><span class="dot dot-later"></span>Depois <small>(reservado)</small></div>
           <ul class="cart-list" id="lista-later"></ul>
-          <div class="cart-total cart-total-later" id="total-later"></div>
+          <div class="cart-total" id="tl-box">
+            <div class="row"><span>Estimativa futura</span><b id="tl-unico">R$ 0,00</b></div>
+            <div class="row"><span>Recorrência</span><span><span id="tl-mensal">R$ 0,00</span>/mês</span></div>
+          </div>
         </div>
 
-        <button class="btn btn-primary btn-block" id="ir-assinar" disabled>Ir para assinatura</button>
+        <button class="btn btn-primary btn-block btn-arrow" id="ir-assinar" disabled>Ir para assinatura <svg aria-hidden="true"><use href="#arrow"/></svg></button>
         <button class="link-btn" id="limpar">Limpar seleção</button>
       </div>
     </aside>
   </div>
 
   <section class="contrato" id="contrato" aria-labelledby="contrato-titulo">
-    <div class="contrato-card">
+    <div class="contrato-card reveal">
       <p class="eyebrow">Passo final</p>
       <h2 id="contrato-titulo">Contrato e assinatura</h2>
 
@@ -143,7 +218,7 @@
           </label>
 
           <p class="form-error" id="form-erro" role="alert" hidden></p>
-          <button type="submit" class="btn btn-primary btn-lg">Assinar contrato</button>
+          <button type="submit" class="btn btn-primary btn-lg btn-arrow">Assinar contrato <svg aria-hidden="true"><use href="#arrow"/></svg></button>
         </form>
       </div>
 

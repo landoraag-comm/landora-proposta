@@ -4,10 +4,12 @@
   const D = window.PROPOSTA;
   const $ = (s, r = document) => r.querySelector(s);
   const brl = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const params = new URLSearchParams(location.search);
   const cliente = (params.get("cliente") || D.cliente).trim().slice(0, 80);
   const byId = Object.fromEntries(D.modulos.map((m) => [m.id, m]));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   /* ---------- Ícones ---------- */
   const ICONS = {
@@ -32,6 +34,7 @@
   /* ---------- Estado ---------- */
   const KEY = "landora-proposta:" + cliente.toLowerCase();
   const state = { now: [], later: [], filtro: "todos", assinado: null };
+  const prev = { now: [], later: [] };
 
   function load() {
     try {
@@ -49,15 +52,39 @@
   const sum = (ids) =>
     ids.reduce((a, id) => ({ unico: a.unico + byId[id].preco, mensal: a.mensal + byId[id].mensal }), { unico: 0, mensal: 0 });
 
-  /* ---------- Ações ---------- */
+  /* ---------- Animação de números ---------- */
+  function tween(el, to, fmt) {
+    if (!el) return;
+    const from = el._cur ?? 0;
+    el._cur = to;
+    cancelAnimationFrame(el._raf);
+    if (reduce || from === to) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = 650;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(from + (to - from) * e);
+      if (k < 1) el._raf = requestAnimationFrame(step);
+    };
+    el._raf = requestAnimationFrame(step);
+  }
+  const bump = (el) => {
+    if (!el || reduce) return;
+    el.classList.remove("bump");
+    void el.offsetWidth;
+    el.classList.add("bump");
+  };
+
+  /* ---------- Toast ---------- */
   function toast(msg) {
     const t = $("#toast");
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+    toast._t = setTimeout(() => t.classList.remove("show"), 1900);
   }
 
+  /* ---------- Ações ---------- */
   function setList(id, list) {
     const m = byId[id];
     const inNow = state.now.includes(id);
@@ -66,16 +93,18 @@
     state.later = state.later.filter((x) => x !== id);
     if (list === "now" && !inNow) { state.now.push(id); toast(m.nome + " no contrato"); }
     else if (list === "later" && !inLater) { state.later.push(id); toast(m.nome + " guardado para depois"); }
-    changed();
-  }
-
-  function changed() {
     state.assinado = null;
     save();
-    render();
+    const el = cardEls[id];
+    if (el && !reduce) {
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+    update();
   }
 
-  /* ---------- Render: filtros e vitrine ---------- */
+  /* ---------- Filtros ---------- */
   function renderFiltros() {
     const box = $("#filtros");
     box.innerHTML = "";
@@ -86,10 +115,18 @@
       b.role = "tab";
       b.textContent = c.nome;
       b.setAttribute("aria-selected", String(state.filtro === c.id));
-      b.addEventListener("click", () => { state.filtro = c.id; renderFiltros(); renderGrid(); });
+      b.addEventListener("click", () => {
+        if (state.filtro === c.id) return;
+        state.filtro = c.id;
+        renderFiltros();
+        buildGrid();
+      });
       box.appendChild(b);
     });
   }
+
+  /* ---------- Vitrine ---------- */
+  const cardEls = {};
 
   function priceHTML(m) {
     const parts = [];
@@ -101,43 +138,73 @@
     return parts.join("");
   }
 
-  function renderGrid() {
-    const grid = $("#grid");
-    grid.innerHTML = "";
-    D.modulos
-      .filter((m) => state.filtro === "todos" || m.categoria === state.filtro)
-      .forEach((m) => {
-        const inNow = state.now.includes(m.id);
-        const inLater = state.later.includes(m.id);
-        const el = document.createElement("article");
-        el.className = "card" + (inNow ? " is-now" : "") + (inLater ? " is-later" : "");
-        el.innerHTML = `
-          <div class="card-top">
-            <div class="card-ico">${icon(m.icone)}</div>
-            <span class="tag">${inNow ? "No contrato" : inLater ? "Para depois" : ""}</span>
-          </div>
-          <h3></h3>
-          <p></p>
-          <div class="price">${priceHTML(m)}</div>
-          <div class="card-actions">
-            <button type="button" class="btn btn-primary btn-now" aria-pressed="${inNow}">${inNow ? "No contrato" : "Adicionar"}</button>
-            <button type="button" class="btn btn-later" aria-pressed="${inLater}">${inLater ? "Reservado" : "Depois"}</button>
-          </div>`;
-        $("h3", el).textContent = m.nome;
-        $("p", el).textContent = m.desc;
-        $(".btn-now", el).addEventListener("click", () => setList(m.id, inNow ? null : "now"));
-        $(".btn-later", el).addEventListener("click", () => setList(m.id, inLater ? null : "later"));
-        grid.appendChild(el);
-      });
+  function createCard(m, i) {
+    const el = document.createElement("article");
+    el.className = "card";
+    el.style.setProperty("--i", i);
+    el.innerHTML = `
+      <div class="card-top">
+        <div class="card-ico">${icon(m.icone)}</div>
+        <span class="tag"></span>
+      </div>
+      <h3></h3>
+      <p></p>
+      <div class="price">${priceHTML(m)}</div>
+      <div class="card-actions">
+        <button type="button" class="btn btn-primary btn-now"></button>
+        <button type="button" class="btn btn-later"></button>
+      </div>`;
+    $("h3", el).textContent = m.nome;
+    $("p", el).textContent = m.desc;
+    $(".btn-now", el).addEventListener("click", () => setList(m.id, state.now.includes(m.id) ? null : "now"));
+    $(".btn-later", el).addEventListener("click", () => setList(m.id, state.later.includes(m.id) ? null : "later"));
+    el.addEventListener("animationend", (e) => { if (e.animationName === "pop") el.classList.remove("pop"); });
+    return el;
   }
 
-  /* ---------- Render: carrinhos ---------- */
-  function renderCartList(ul, ids, moveTo, moveLabel) {
+  function buildGrid() {
+    const grid = $("#grid");
+    grid.innerHTML = "";
+    Object.keys(cardEls).forEach((k) => delete cardEls[k]);
+    D.modulos
+      .filter((m) => state.filtro === "todos" || m.categoria === state.filtro)
+      .forEach((m, i) => {
+        const el = createCard(m, i);
+        cardEls[m.id] = el;
+        grid.appendChild(el);
+      });
+    syncCards();
+  }
+
+  function syncCards() {
+    Object.entries(cardEls).forEach(([id, el]) => {
+      const inNow = state.now.includes(id), inLater = state.later.includes(id);
+      el.classList.toggle("is-now", inNow);
+      el.classList.toggle("is-later", inLater);
+      $(".tag", el).textContent = inNow ? "No contrato" : inLater ? "Para depois" : "";
+      const bn = $(".btn-now", el), bl = $(".btn-later", el);
+      bn.textContent = inNow ? "No contrato" : "Adicionar";
+      bn.setAttribute("aria-pressed", String(inNow));
+      bl.textContent = inLater ? "Reservado" : "Depois";
+      bl.setAttribute("aria-pressed", String(inLater));
+    });
+  }
+
+  // brilho que segue o mouse nos cards
+  $("#grid").addEventListener("pointermove", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", e.clientX - r.left + "px");
+    card.style.setProperty("--my", e.clientY - r.top + "px");
+  });
+
+  /* ---------- Carrinhos ---------- */
+  function renderCartList(ul, ids, prevIds, moveTo, moveLabel) {
     ul.innerHTML = "";
     if (!ids.length) {
       const li = document.createElement("li");
       li.className = "cart-empty";
-      li.style.cssText = "background:none;border:0;padding:6px 2px";
       li.textContent = "Nenhum módulo ainda.";
       ul.appendChild(li);
       return;
@@ -145,6 +212,7 @@
     ids.forEach((id) => {
       const m = byId[id];
       const li = document.createElement("li");
+      if (!prevIds.includes(id)) li.className = "new";
       li.innerHTML = `<div class="nm"><b></b><span></span></div>
         <button class="mini" type="button" title="${moveLabel}" aria-label="${moveLabel}">⇄</button>
         <button class="mini" type="button" title="Remover" aria-label="Remover">×</button>`;
@@ -157,25 +225,35 @@
     });
   }
 
-  function totalsHTML(t, label) {
-    return `<div class="row big"><span>${label}</span><span>${brl(t.unico)}</span></div>
-            <div class="row"><span>Recorrência</span><span>${brl(t.mensal)}/mês</span></div>`;
-  }
-
   function renderCart() {
-    renderCartList($("#lista-now"), state.now, "later", "Mover para Depois");
-    renderCartList($("#lista-later"), state.later, "now", "Mover para o Contrato");
+    renderCartList($("#lista-now"), state.now, prev.now, "later", "Mover para Depois");
+    renderCartList($("#lista-later"), state.later, prev.later, "now", "Mover para o Contrato");
+    prev.now = state.now.slice();
+    prev.later = state.later.slice();
+
     const tn = sum(state.now), tl = sum(state.later);
-    $("#total-now").innerHTML = totalsHTML(tn, "Total do contrato");
-    $("#total-later").innerHTML = state.later.length
-      ? totalsHTML(tl, "Estimativa futura").replace("row big", "row")
-      : "";
+    tween($("#tn-unico"), tn.unico, brl);
+    tween($("#tn-mensal"), tn.mensal, brl);
+    tween($("#tl-unico"), tl.unico, brl);
+    tween($("#tl-mensal"), tl.mensal, brl);
+    $("#tl-box").classList.toggle("off", !state.later.length);
     $("#ir-assinar").disabled = !state.now.length;
+
+    // hero (cartões flutuantes)
+    tween($("#hv-now"), tn.unico, brl);
+    tween($("#hv-later"), tl.unico, brl);
+    tween($("#hv-mensal"), tn.mensal, brl);
+    $("#hv-now-n").textContent = state.now.length;
+    $("#hv-later-n").textContent = state.later.length;
+
+    // barra mobile
     $("#bar-count").textContent = state.now.length + state.later.length;
-    $("#bar-total").textContent = brl(tn.unico) + (tn.mensal ? " + " + brl(tn.mensal) + "/mês" : "");
+    tween($("#bar-total"), tn.unico, brl);
+    bump($("#bar-count"));
+    bump($("#tn-unico"));
   }
 
-  /* ---------- Render: contrato ---------- */
+  /* ---------- Contrato ---------- */
   function renderContrato() {
     const has = state.now.length > 0;
     const signed = !!state.assinado;
@@ -186,9 +264,10 @@
 
     const rows = $("#resumo-linhas");
     rows.innerHTML = "";
-    state.now.forEach((id) => {
+    state.now.forEach((id, i) => {
       const m = byId[id];
       const tr = document.createElement("tr");
+      tr.style.animationDelay = i * 50 + "ms";
       tr.innerHTML = "<td></td><td class='num'></td><td class='num'></td>";
       tr.children[0].textContent = m.nome;
       tr.children[1].textContent = m.preco ? brl(m.preco) : "—";
@@ -199,8 +278,8 @@
     $("#resumo-total").innerHTML = `<tr><td>Total</td><td class="num">${brl(t.unico)}</td><td class="num">${brl(t.mensal)}</td></tr>`;
   }
 
-  function render() {
-    renderGrid();
+  function update() {
+    syncCards();
     renderCart();
     renderContrato();
   }
@@ -254,8 +333,9 @@
 
   function erro(msg) {
     const el = $("#form-erro");
-    el.textContent = msg;
     el.hidden = !msg;
+    el.textContent = msg;
+    if (msg) { el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; }
   }
 
   function resumoTexto(a) {
@@ -287,7 +367,6 @@
       <img alt="Assinatura" src="${a.assinaturaPrint}">
       <p class="meta">${esc(a.nome)}</p>`;
   }
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   // Imagem da assinatura em fundo branco/traço escuro para impressão
   function assinaturaPrint() {
@@ -366,7 +445,7 @@
       wpp.hidden = true; cp.hidden = false;
     }
     renderContrato();
-    $("#contrato").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#contrato").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     if (!r.ok && r.motivo === "erro") toast("Assinado, mas não consegui salvar online. Envie o resumo.");
   });
 
@@ -378,23 +457,53 @@
   $("#btn-editar").addEventListener("click", () => { state.assinado = null; resetPad(); renderContrato(); });
 
   /* ---------- Carrinho: navegação e mobile ---------- */
+  const cart = $("#carrinho"), scrim = $("#scrim");
+  function openCart() { cart.classList.add("open"); scrim.hidden = false; }
+  function closeCart() { cart.classList.remove("open"); scrim.hidden = true; }
   $("#ir-assinar").addEventListener("click", () => {
     closeCart();
-    $("#contrato").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#contrato").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   });
   $("#limpar").addEventListener("click", () => {
     if (!state.now.length && !state.later.length) return;
     state.now = []; state.later = [];
-    changed();
+    state.assinado = null;
+    save();
+    update();
     toast("Seleção limpa");
   });
-  const cart = $("#carrinho"), scrim = $("#scrim");
-  function openCart() { cart.classList.add("open"); scrim.hidden = false; }
-  function closeCart() { cart.classList.remove("open"); scrim.hidden = true; }
   $("#cart-bar").addEventListener("click", openCart);
   $("#cart-close").addEventListener("click", closeCart);
   scrim.addEventListener("click", closeCart);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeCart(); });
+
+  /* ---------- Efeitos de página ---------- */
+  function setupReveal() {
+    const els = document.querySelectorAll(".reveal");
+    if (reduce || !("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("in")); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { threshold: 0.15, rootMargin: "0px 0px -6% 0px" });
+    els.forEach((el) => io.observe(el));
+  }
+
+  function setupProgress() {
+    const bar = $("#progress");
+    let ticking = false;
+    const calc = () => {
+      const h = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${h > 0 ? Math.min(1, scrollY / h) : 0})`;
+      ticking = false;
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(calc); } }, { passive: true });
+    calc();
+  }
+
+  function buildMarquee() {
+    const nomes = D.modulos.map((m) => m.nome);
+    const html = nomes.map((n) => `<span class="mq">${esc(n)}</span>`).join("");
+    $("#marquee").innerHTML = html + html;
+  }
 
   /* ---------- Init ---------- */
   function init() {
@@ -407,9 +516,13 @@
     document.title = "Proposta Landora · " + cliente;
     $("#termos").innerHTML = D.termos.map((t) => `<li>${esc(t)}</li>`).join("");
     load();
+    buildMarquee();
     renderFiltros();
+    buildGrid();
     resetPad();
-    render();
+    update();
+    setupReveal();
+    setupProgress();
   }
   init();
 })();
