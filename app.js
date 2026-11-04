@@ -521,8 +521,8 @@
 
   /* ---------- Carrinho: navegação e mobile ---------- */
   const cart = $("#carrinho"), scrim = $("#scrim");
-  function openCart() { cart.classList.add("open"); scrim.hidden = false; }
-  function closeCart() { cart.classList.remove("open"); scrim.hidden = true; }
+  function openCart() { cart.classList.add("open"); scrim.hidden = false; document.body.classList.add("cart-open"); }
+  function closeCart() { cart.classList.remove("open"); scrim.hidden = true; document.body.classList.remove("cart-open"); }
   $("#ir-assinar").addEventListener("click", () => {
     closeCart();
     $("#contrato").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
@@ -556,6 +556,7 @@
     const calc = () => {
       const h = document.documentElement.scrollHeight - innerHeight;
       bar.style.transform = `scaleX(${h > 0 ? Math.min(1, scrollY / h) : 0})`;
+      document.body.classList.toggle("show-bar", scrollY > 480);
       ticking = false;
     };
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(calc); } }, { passive: true });
