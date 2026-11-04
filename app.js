@@ -1,14 +1,16 @@
 (function () {
   "use strict";
 
-  const D = window.PROPOSTA;
+  let D = window.PROPOSTA;
   const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const brl = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const params = new URLSearchParams(location.search);
-  const cliente = (params.get("cliente") || D.cliente).trim().slice(0, 80);
-  const byId = Object.fromEntries(D.modulos.map((m) => [m.id, m]));
+  const slug = (params.get("p") || "").trim().toLowerCase();
+  let cliente = "";
+  let byId = {};
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   /* ---------- Ícones ---------- */
@@ -32,7 +34,7 @@
   const icon = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k] || ICONS.page}</svg>`;
 
   /* ---------- Estado ---------- */
-  const KEY = "landora-proposta:" + cliente.toLowerCase();
+  let KEY = "";
   const state = { now: [], later: [], filtro: "todos", assinado: null };
   const prev = { now: [], later: [] };
 
@@ -143,12 +145,14 @@
     el.className = "card";
     el.style.setProperty("--i", i);
     el.innerHTML = `
+      ${m.imagens && m.imagens[0] ? `<button type="button" class="card-cover" aria-label="Ver detalhes"><img alt="" loading="lazy" src="${esc(m.imagens[0])}"></button>` : ""}
       <div class="card-top">
         <div class="card-ico">${icon(m.icone)}</div>
         <span class="tag"></span>
       </div>
       <h3></h3>
       <p></p>
+      ${m.detalhes || (m.imagens && m.imagens.length) ? '<button type="button" class="link-btn card-more">Ver detalhes</button>' : ""}
       <div class="price">${priceHTML(m)}</div>
       <div class="card-actions">
         <button type="button" class="btn btn-primary btn-now"></button>
@@ -156,6 +160,10 @@
       </div>`;
     $("h3", el).textContent = m.nome;
     $("p", el).textContent = m.desc;
+    const openDet = () => openDetails(m.id);
+    const mb = $(".card-more", el), cv = $(".card-cover", el);
+    if (mb) mb.addEventListener("click", openDet);
+    if (cv) cv.addEventListener("click", openDet);
     $(".btn-now", el).addEventListener("click", () => setList(m.id, state.now.includes(m.id) ? null : "now"));
     $(".btn-later", el).addEventListener("click", () => setList(m.id, state.later.includes(m.id) ? null : "later"));
     el.addEventListener("animationend", (e) => { if (e.animationName === "pop") el.classList.remove("pop"); });
@@ -198,6 +206,55 @@
     card.style.setProperty("--mx", e.clientX - r.left + "px");
     card.style.setProperty("--my", e.clientY - r.top + "px");
   });
+
+  /* ---------- Detalhes do módulo (modal) ---------- */
+  let detId = null;
+  function openDetails(id) {
+    const m = byId[id];
+    if (!m) return;
+    detId = id;
+    const imgs = m.imagens || [];
+    $("#det-main").hidden = !imgs.length;
+    if (imgs.length) $("#det-main").src = imgs[0];
+    $("#det-thumbs").innerHTML = imgs.length > 1 ? imgs.map((u, i) => `<button type="button" class="${i ? "" : "on"}" data-i="${i}"><img alt="" src="${esc(u)}"></button>`).join("") : "";
+    $("#det-ico").innerHTML = icon(m.icone);
+    $("#det-title").textContent = m.nome;
+    $("#det-desc").textContent = m.desc || "";
+    $("#det-more").textContent = m.detalhes || "";
+    $("#det-price").innerHTML = priceHTML(m);
+    syncDet();
+    const box = $("#mod-det");
+    box.hidden = false;
+    document.body.classList.add("modal-open");
+    requestAnimationFrame(() => box.classList.add("on"));
+    $(".det-close", box).focus();
+  }
+  function closeDetails() {
+    const box = $("#mod-det");
+    box.classList.remove("on");
+    document.body.classList.remove("modal-open");
+    setTimeout(() => { if (!box.classList.contains("on")) box.hidden = true; }, 260);
+    detId = null;
+  }
+  function syncDet() {
+    if (!detId) return;
+    const inNow = state.now.includes(detId), inLater = state.later.includes(detId);
+    const bn = $("#det-now"), bl = $("#det-later");
+    bn.textContent = inNow ? "No contrato ✓" : "Adicionar ao contrato";
+    bn.setAttribute("aria-pressed", String(inNow));
+    bl.textContent = inLater ? "Reservado ✓" : "Guardar para depois";
+    bl.setAttribute("aria-pressed", String(inLater));
+  }
+  $("#det-thumbs").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-i]");
+    if (!b) return;
+    $("#det-main").src = byId[detId].imagens[+b.dataset.i];
+    $$("#det-thumbs button").forEach((x) => x.classList.toggle("on", x === b));
+  });
+  $("#det-now").addEventListener("click", () => { setList(detId, state.now.includes(detId) ? null : "now"); syncDet(); });
+  $("#det-later").addEventListener("click", () => { setList(detId, state.later.includes(detId) ? null : "later"); syncDet(); });
+  $("#mod-det").addEventListener("click", (e) => { if (e.target.matches("#mod-det, .det-close")) closeDetails(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && detId) closeDetails(); });
 
   /* ---------- Carrinhos ---------- */
   function renderCartList(ul, ids, prevIds, moveTo, moveLabel) {
@@ -284,6 +341,7 @@
 
   function update() {
     syncCards();
+    syncDet();
     renderCart();
     renderContrato();
   }
@@ -396,6 +454,7 @@
       const t = sum(state.now), tl = sum(state.later);
       await addDoc(collection(db, "propostas"), {
         protocolo: a.protocolo,
+        modelo: slug || null,
         cliente,
         nome: a.nome,
         documento: a.doc,
@@ -515,6 +574,54 @@
     if (tb) document.documentElement.style.setProperty("--nav-h", tb.offsetHeight + "px");
   }
 
+  function fromModelo(m) {
+    const cats = [];
+    (m.modulos || []).forEach((x) => { if (x.categoria && !cats.includes(x.categoria)) cats.push(x.categoria); });
+    const slugify = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+    const base = window.PROPOSTA;
+    return {
+      ...base,
+      cliente: m.cliente || base.cliente,
+      validadeDias: +m.validadeDias || base.validadeDias,
+      whatsapp: (m.whatsapp || "").replace(/\D/g, ""),
+      instagram: m.instagram || base.instagram,
+      termos: m.termos && m.termos.length ? m.termos : base.termos,
+      categorias: [{ id: "todos", nome: "Todos" }].concat(cats.map((c) => ({ id: slugify(c), nome: c }))),
+      modulos: (m.modulos || []).map((x) => ({
+        id: x.id, categoria: slugify(x.categoria || ""), icone: x.icone || "page", nome: x.nome || "Módulo",
+        desc: x.desc || "", detalhes: x.detalhes || "", imagens: x.imagens || [],
+        preco: +x.preco || 0, mensal: +x.mensal || 0,
+      })),
+    };
+  }
+
+  function bootMsg(titulo, texto) {
+    const b = $("#boot");
+    b.hidden = false;
+    b.innerHTML = `<div><h2></h2><p></p></div>`;
+    $("h2", b).textContent = titulo;
+    $("p", b).textContent = texto;
+  }
+
+  async function boot() {
+    if (slug) {
+      bootMsg("Carregando proposta…", "Só um instante.");
+      try {
+        const m = await window.Store.getModelo(slug);
+        if (!m) return bootMsg("Proposta não encontrada", "Confira o link com a Landora.");
+        D = fromModelo(m);
+      } catch (e) {
+        console.error(e);
+        return bootMsg("Não foi possível abrir a proposta", "Tente novamente em instantes ou fale com a Landora.");
+      }
+      $("#boot").hidden = true;
+    }
+    cliente = (params.get("cliente") || D.cliente).trim().slice(0, 80);
+    byId = Object.fromEntries(D.modulos.map((m) => [m.id, m]));
+    KEY = "landora-proposta:" + (slug ? slug + ":" : "") + cliente.toLowerCase();
+    init();
+  }
+
   function init() {
     setNavHeight();
     addEventListener("resize", setNavHeight);
@@ -541,5 +648,5 @@
     setupReveal();
     setupProgress();
   }
-  init();
+  boot();
 })();

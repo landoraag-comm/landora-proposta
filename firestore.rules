@@ -1,8 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Propostas assinadas: qualquer visitante pode CRIAR, ninguém lê pelo site.
-    // Leia pelo Console do Firebase ou com um usuário admin autenticado.
+
+    // Administradores (e-mails Google verificados). Edite a lista para liberar mais pessoas.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['landora.comercial@gmail.com'];
+    }
+
+    // Propostas assinadas: qualquer visitante pode CRIAR; só admin lê.
     match /propostas/{id} {
       allow create: if request.resource.data.keys().hasAll(['protocolo','cliente','nome','documento','assinatura','contrato'])
                     && request.resource.data.contrato is list
@@ -11,7 +18,19 @@ service cloud.firestore {
                     && request.resource.data.nome.size() < 200
                     && request.resource.data.assinatura is string
                     && request.resource.data.assinatura.size() < 400000;
-      allow read, update, delete: if request.auth != null && request.auth.token.admin == true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Modelos de proposta (criados no painel /admin).
+    // O cliente abre pelo link ?p=slug (leitura direta); a listagem é só do admin.
+    match /modelos/{slug} {
+      allow get: if true;
+      allow list, write: if isAdmin();
+
+      match /modulos/{id} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
     }
   }
 }

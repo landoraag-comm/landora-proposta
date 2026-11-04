@@ -82,7 +82,7 @@ a{color:inherit}
   background:
     linear-gradient(90deg,rgba(4,6,11,.9) 0%,rgba(4,6,11,.62) 46%,rgba(4,6,11,.3) 100%),
     linear-gradient(180deg,rgba(4,6,11,.55) 0%,rgba(4,6,11,.1) 35%,rgba(4,6,11,.35) 100%),
-    url("assets/hero-bg.jpg") 60% 35%/cover no-repeat;
+    url("assets/hero-bg-wide.jpg") 55% 40%/cover no-repeat;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
   mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
   animation:bgIn 1.6s var(--ease) both;
@@ -107,10 +107,10 @@ a{color:inherit}
 .rise{opacity:0;transform:translateY(22px);animation:rise .9s var(--ease) forwards;animation-delay:calc(var(--d,0) * 110ms + 100ms)}
 
 /* visual 3D do hero */
-.hero-visual{position:relative;aspect-ratio:1;width:100%;max-width:560px;margin-left:auto;display:grid;place-items:center}
+.hero-visual{position:relative;align-self:end;width:100%;max-width:560px;margin-left:auto;display:flex;align-items:flex-end;justify-content:flex-end;gap:14px;padding-bottom:6px}
 
 .float-card{
-  position:absolute;display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-radius:18px;min-width:150px;
+  position:relative;flex:1 1 0;max-width:190px;display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-radius:18px;min-width:140px;
   background:rgba(12,18,36,.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border:1px solid var(--line-2);box-shadow:0 20px 50px -20px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08);
   animation:floaty 7s ease-in-out infinite;
@@ -119,9 +119,9 @@ a{color:inherit}
 .float-card b{font-family:var(--font-display);font-size:22px;letter-spacing:-.02em}
 .float-card span{font-size:12px;color:var(--muted)}
 .float-card i{font-style:normal;color:var(--blue-soft)}
-.fc-1{left:-4%;top:2%;animation-delay:-1s}
-.fc-2{right:-6%;bottom:2%;animation-delay:-3s;border-style:dashed;border-color:rgba(122,168,255,.45)}
-.fc-3{right:-8%;top:-2%;animation-delay:-5s}
+.fc-1{order:1;animation-delay:-1s}
+.fc-2{order:3;animation-delay:-3s;border-style:dashed;border-color:rgba(122,168,255,.45)}
+.fc-3{order:2;animation-delay:-5s}
 .spark{display:flex;align-items:flex-end;gap:4px;height:26px;margin-top:8px}
 .spark i{flex:1;border-radius:3px;background:linear-gradient(180deg,#3b82ff,rgba(11,92,255,.15));height:30%;animation:bars 3.2s ease-in-out infinite}
 .spark i:nth-child(2){height:55%;animation-delay:.2s}.spark i:nth-child(3){height:40%;animation-delay:.4s}
@@ -230,6 +230,33 @@ a{color:inherit}
 .price strong{font-family:var(--font-display);font-size:22px;letter-spacing:-.03em}
 .price span{font-size:12.5px;color:var(--muted)}
 .card-actions{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+
+/* capa e detalhes dos módulos */
+.card-cover{display:block;padding:0;border:0;cursor:zoom-in;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#0a1020;margin:-4px -4px 2px}
+.card-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s var(--ease)}
+.card:hover .card-cover img{transform:scale(1.05)}
+.card-more{align-self:flex-start;padding:0;color:var(--blue-soft)}
+.boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;text-align:center;padding:24px;background:var(--bg)}
+.boot h2{font-size:22px;margin-bottom:8px}.boot p{color:var(--muted)}
+.modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(2,4,9,.78);backdrop-filter:blur(6px);opacity:0;transition:opacity .25s}
+.modal.on{opacity:1}
+.modal-panel{position:relative;display:grid;grid-template-columns:1.15fr 1fr;width:min(960px,100%);max-height:calc(100vh - 32px);overflow:auto;border-radius:24px;
+  background:linear-gradient(180deg,#0f1630,#080c1a);border:1px solid var(--line-2);box-shadow:0 40px 120px -30px rgba(11,92,255,.55);transform:translateY(16px) scale(.98);transition:transform .35s var(--ease)}
+.modal.on .modal-panel{transform:none}
+.det-close{position:absolute;top:10px;right:14px;z-index:2;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.45)}
+.det-media{background:#070b15;display:flex;flex-direction:column;gap:10px;padding:14px;min-height:200px}
+.det-media img#det-main{width:100%;border-radius:16px;object-fit:contain;max-height:60vh;background:#050810}
+.det-thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.det-thumbs button{width:64px;height:48px;padding:0;border-radius:10px;overflow:hidden;border:2px solid transparent;opacity:.6;cursor:pointer;background:none}
+.det-thumbs button.on{border-color:var(--blue-3);opacity:1}
+.det-thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.det-body{display:flex;flex-direction:column;gap:12px;padding:28px 26px}
+.det-body h3{font-size:24px}
+.det-desc{color:var(--text)}
+.det-more{color:var(--muted);font-size:14px;white-space:pre-line}
+.det-actions{display:grid;gap:8px;margin-top:6px}
+body.modal-open{overflow:hidden}
+@media (max-width:760px){.modal-panel{grid-template-columns:1fr}.det-media img#det-main{max-height:38vh}}
 
 /* ---------- Botões ---------- */
 .btn{
@@ -447,7 +474,7 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
     mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%);
   }
   .hero{grid-template-columns:1fr;min-height:0;padding-top:calc(var(--nav-h,72px) + 22px)}
-  .hero-visual{width:100%;max-width:none;height:290px;aspect-ratio:auto;margin:0;order:-1}
+  .hero-visual{width:100%;max-width:none;height:290px;margin:0;order:-1}
   .float-card{display:none}
   .steps{grid-template-columns:1fr}
   .layout{grid-template-columns:1fr}

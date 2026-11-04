@@ -285,6 +285,29 @@
   <span class="cart-bar-text"><small>Contrato</small><strong id="bar-total">R$ 0,00</strong></span>
   <span class="cart-bar-cta">Ver seleção</span>
 </button>
+<div class="boot" id="boot" hidden></div>
+
+<div class="modal" id="mod-det" role="dialog" aria-modal="true" aria-labelledby="det-title" hidden>
+  <div class="modal-panel">
+    <button type="button" class="det-close icon-btn" aria-label="Fechar">×</button>
+    <div class="det-media">
+      <img id="det-main" alt="" hidden>
+      <div class="det-thumbs" id="det-thumbs"></div>
+    </div>
+    <div class="det-body">
+      <div class="card-ico" id="det-ico"></div>
+      <h3 id="det-title"></h3>
+      <p class="det-desc" id="det-desc"></p>
+      <p class="det-more" id="det-more"></p>
+      <div class="price" id="det-price"></div>
+      <div class="det-actions">
+        <button type="button" class="btn btn-primary btn-now" id="det-now"></button>
+        <button type="button" class="btn btn-later" id="det-later"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="scrim" id="scrim" hidden></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -294,6 +317,7 @@
 
 <script src="data.js"></script>
 <script src="firebase-config.js"></script>
+<script src="store.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

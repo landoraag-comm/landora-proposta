@@ -16,6 +16,16 @@ Site estático (HTML, CSS e JS puro), sem build.
 | `firebase-config.js` | Config do Firebase (opcional). Se `null`, a assinatura não é gravada online |
 | `firebase.json` / `firestore.rules` | Hosting e regras do Firestore |
 
+## Painel de propostas (`/admin`)
+
+`admin.html` cria propostas novas usando este site como base: módulos, valores, categorias e até 4 imagens por módulo (aparecem no card e em "Ver detalhes").
+
+- Cada proposta gera um link: `https://SEU-DOMINIO/?p=slug` (opcional: `&cliente=Nome`).
+- Dados em `modelos/{slug}` e `modelos/{slug}/modulos/{id}` no Firestore.
+- Login com Google. Quem pode editar é definido em `isAdmin()` no `firestore.rules` (lista de e-mails).
+- Sem `firebase-config.js` preenchido, o painel roda em modo demonstração (localStorage).
+- Precisa de: Authentication > Google ativado, Firestore criado e `npm run deploy:all`.
+
 ## Personalizar por cliente
 
 Use o link com o nome do cliente (as seleções ficam salvas por cliente no navegador dele):
