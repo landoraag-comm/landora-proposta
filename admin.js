@@ -9,10 +9,10 @@
   const uid = () => Math.random().toString(36).slice(2, 8);
   const ICONES = ["page", "dashboard", "calendar", "card", "chat", "users", "lock", "bell", "chart", "star", "cart", "zap", "globe", "mobile", "shield"];
   const ICON_NOME = { page: "Página", dashboard: "Painel", calendar: "Agenda", card: "Pagamento", chat: "Chat", users: "Pessoas", lock: "Acesso", bell: "Notificação", chart: "Gráfico", star: "Estrela", cart: "Carrinho", zap: "Raio", globe: "Globo", mobile: "Celular", shield: "Escudo" };
-  const BASE = location.href.replace(/admin(\.html)?([?#].*)?$/, "");
-  const RESERVADOS = ["admin", "index", "assets", "styles", "app", "data", "store", "firebase-config", "firebase", "404", "api"];
+  const BASE = location.href.split(/[?#]/)[0].replace(/[^/]*$/, "");
+  const RESERVADOS = ["admin", "index", "proposta", "assets", "styles", "app", "data", "store", "firebase-config", "firebase", "404", "api"];
   // online: https://dominio/slug (reescrita do Hosting) | demonstração local: ?p=slug
-  const linkDe = (slug) => (S.mode === "firebase" ? location.origin + "/" + encodeURIComponent(slug) : BASE + "?p=" + encodeURIComponent(slug));
+  const linkDe = (slug) => (S.mode === "firebase" ? location.origin + "/" + encodeURIComponent(slug) : BASE + "proposta.html?p=" + encodeURIComponent(slug));
 
   const LOGO = `<svg class="brand-lockup" viewBox="9 -2 990 204" role="img" aria-label="Landora"><use href="#layer1"/><text x="219.9" y="184.4" font-family="Manrope,sans-serif" font-weight="400" font-size="25.06" letter-spacing="12.64" fill="#fff">LANDING PAGES BUILT TO CONVERT</text></svg>`;
 
@@ -28,7 +28,7 @@
   /* ---------- Cabeçalho ---------- */
   const topo = () => `
     <div class="adm-top">
-      <a href="admin.html" aria-label="Landora">${LOGO}</a>
+      <a href="./" aria-label="Landora">${LOGO}</a>
       <div class="adm-user"><span>${esc(user.email)}</span>${user.demo ? "" : '<button class="btn btn-ghost btn-sm" id="sair">Sair</button>'}</div>
     </div>
     ${S.mode === "local" ? '<div class="demo-bar">Modo demonstração: os dados ficam só neste navegador. Preencha o <b>firebase-config.js</b> para salvar online.</div>' : ""}`;

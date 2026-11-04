@@ -5,7 +5,7 @@
  * ATENÇÃO: os valores abaixo são EXEMPLOS. Ajuste antes de enviar ao cliente.
  *
  * Link personalizado por cliente:
- *   index.html?cliente=Nome%20do%20Cliente
+ *   proposta.html?cliente=Nome%20do%20Cliente
  */
 window.PROPOSTA = {
   cliente: "Seu Cliente",

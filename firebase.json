@@ -36,10 +36,27 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/proposta.html"
       }
     ],
-    "trailingSlash": false
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/admin",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/admin.html",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/index.html",
+        "destination": "/",
+        "type": 301
+      }
+    ]
   },
   "firestore": {
     "rules": "firestore.rules"

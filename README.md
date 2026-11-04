@@ -12,16 +12,18 @@ Site estático (HTML, CSS e JS puro), sem build.
 | Arquivo | Função |
 |---|---|
 | `data.js` | Módulos, preços, validade, WhatsApp e condições. **É aqui que você edita.** |
-| `index.html` / `styles.css` / `app.js` | Página, identidade visual da Landora e lógica dos carrinhos |
+| `index.html` / `admin.js` / `admin.css` | **Painel administrativo** (abre na raiz do site, pede login Google) |
+| `proposta.html` / `styles.css` / `app.js` | Modelo da proposta (base), identidade visual da Landora e lógica dos carrinhos |
+| `store.js` | Acesso aos dados (Firestore ou modo demonstração) |
 | `firebase-config.js` | Config do Firebase (opcional). Se `null`, a assinatura não é gravada online |
 | `firebase.json` / `firestore.rules` | Hosting e regras do Firestore |
 
 ## Painel de propostas (`/admin`)
 
-`admin.html` cria propostas novas usando este site como base: módulos, valores, categorias e até 4 imagens por módulo (aparecem no card e em "Ver detalhes").
+O endereço principal (`https://SEU-DOMINIO/`) abre o painel: login, criar proposta, cadastrar módulos, valores e imagens. O painel cria propostas novas usando este site como base: módulos, valores, categorias e até 4 imagens por módulo (aparecem no card e em "Ver detalhes").
 
-- Cada proposta gera um link curto para o cliente: `https://SEU-DOMINIO/slug` (ex.: `https://proposta-landora.web.app/garrote-academia`). O Hosting reescreve qualquer caminho para o `index.html`. Em modo demonstração local o link é `?p=slug`.
-- Endereços reservados: admin, index, assets, styles, app, data, store, firebase-config.
+- Cada proposta gera um link curto para o cliente: `https://SEU-DOMINIO/slug` (ex.: `https://proposta-landora.web.app/garrote-academia`). O Hosting reescreve qualquer caminho para o `proposta.html` (o modelo). Em modo demonstração local o link é `proposta.html?p=slug`.
+- Endereços reservados: admin, index, proposta, assets, styles, app, data, store, firebase-config.
 - Dados em `modelos/{slug}` e `modelos/{slug}/modulos/{id}` no Firestore.
 - Login com Google. Quem pode editar é definido em `isAdmin()` no `firestore.rules` (lista de e-mails).
 - Sem `firebase-config.js` preenchido, o painel roda em modo demonstração (localStorage).
