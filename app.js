@@ -246,6 +246,10 @@
     $("#hv-now-n").textContent = state.now.length;
     $("#hv-later-n").textContent = state.later.length;
 
+    $("#ft-sum").textContent = state.now.length
+      ? state.now.length + (state.now.length === 1 ? " módulo" : " módulos") + " no contrato · " + brl(tn.unico) + (tn.mensal ? " + " + brl(tn.mensal) + "/mês" : "")
+      : "Nenhum módulo no contrato ainda";
+
     // barra mobile
     $("#bar-count").textContent = state.now.length + state.later.length;
     tween($("#bar-total"), tn.unico, brl);
@@ -512,7 +516,13 @@
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
     $("#validade-dias").textContent = D.validadeDias;
     $("#inst").textContent = D.instagram;
-    $("#footer-ig").textContent = D.instagram;
+    const igUser = (D.instagram || "").replace("@", "");
+    $("#ft-ig2").textContent = D.instagram;
+    $("#ft-ig").href = $("#ft-ig2").href = "https://instagram.com/" + igUser;
+    if (D.whatsapp) { const w = $("#ft-wpp"); w.hidden = false; w.href = "https://wa.me/" + D.whatsapp; }
+    $("#ft-year").textContent = new Date().getFullYear();
+    $("#ft-validade").textContent = D.validadeDias + " dias";
+    if (cliente === "Seu Cliente") $("#ft-cli-row").hidden = true; else $("#ft-cliente").textContent = cliente;
     document.title = "Proposta Landora · " + cliente;
     $("#termos").innerHTML = D.termos.map((t) => `<li>${esc(t)}</li>`).join("");
     load();
