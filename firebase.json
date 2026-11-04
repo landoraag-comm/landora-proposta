@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": ".",
-    "ignore": ["firebase.json", "firestore.rules", "README.md", ".git/**", ".gitignore", "**/.*", "**/node_modules/**"],
+    "ignore": ["firebase.json", "firestore.rules", "README.md", "package.json", "assets/LogomarcaTransparente.svg", ".git/**", ".gitignore", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
     "headers": [
       { "source": "**/*.@(js|css)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },

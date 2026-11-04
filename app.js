@@ -510,7 +510,14 @@
   }
 
   /* ---------- Init ---------- */
+  function setNavHeight() {
+    const tb = $(".topbar-wrap");
+    if (tb) document.documentElement.style.setProperty("--nav-h", tb.offsetHeight + "px");
+  }
+
   function init() {
+    setNavHeight();
+    addEventListener("resize", setNavHeight);
     $("#badge-txt").textContent = cliente === "Seu Cliente" ? "Proposta personalizada" : "Proposta para " + cliente;
     $("#parte-cliente").textContent = cliente;
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";

@@ -34,12 +34,26 @@ python3 -m http.server 8080
 
 ## Publicar (Firebase Hosting)
 
+No Codespaces (o Firebase CLI já é instalado pelo `.devcontainer`; se não for: `npm i -g firebase-tools`):
+
 ```bash
 git pull
-firebase deploy --only hosting
+firebase login --no-localhost      # só na primeira vez
+firebase use --add                 # só na primeira vez: escolha o projeto
+npm run deploy                     # = firebase deploy --only hosting
 # se mudar firestore.rules:
-firebase deploy --only firestore:rules
+npm run deploy:all
 ```
+
+Domínio próprio: Console do Firebase > Hosting > Adicionar domínio personalizado.
+
+### Deploy automático a cada merge na main (opcional)
+
+```bash
+firebase init hosting:github
+```
+
+Isso cria o workflow do GitHub Actions e o secret da service account.
 
 ## Gravar propostas assinadas no Firestore (opcional)
 
