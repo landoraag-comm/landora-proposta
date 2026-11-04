@@ -8,7 +8,9 @@
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const params = new URLSearchParams(location.search);
-  const slug = (params.get("p") || "").trim().toLowerCase();
+  const RESERVED = ["", "index", "index.html", "admin", "admin.html"];
+  const pathSlug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "").toLowerCase();
+  const slug = (params.get("p") || (RESERVED.includes(pathSlug) || /\.[a-z0-9]+$/.test(pathSlug) ? "" : pathSlug)).trim().toLowerCase();
   let cliente = "";
   let byId = {};
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -99,9 +101,7 @@
     save();
     const el = cardEls[id];
     if (el && !reduce) {
-      el.classList.remove("pop");
-      void el.offsetWidth;
-      el.classList.add("pop");
+      el.animate([{ transform: "scale(1)" }, { transform: "scale(1.03)" }, { transform: "scale(1)" }], { duration: 380, easing: "ease-out" });
     }
     update();
   }
@@ -166,7 +166,8 @@
     if (cv) cv.addEventListener("click", openDet);
     $(".btn-now", el).addEventListener("click", () => setList(m.id, state.now.includes(m.id) ? null : "now"));
     $(".btn-later", el).addEventListener("click", () => setList(m.id, state.later.includes(m.id) ? null : "later"));
-    el.addEventListener("animationend", (e) => { if (e.animationName === "pop") el.classList.remove("pop"); });
+    el.classList.add("enter");
+    el.addEventListener("animationend", (e) => { if (e.animationName === "cardIn") el.classList.remove("enter"); });
     return el;
   }
 
@@ -202,9 +203,14 @@
   $("#grid").addEventListener("pointermove", (e) => {
     const card = e.target.closest(".card");
     if (!card) return;
-    const r = card.getBoundingClientRect();
-    card.style.setProperty("--mx", e.clientX - r.left + "px");
-    card.style.setProperty("--my", e.clientY - r.top + "px");
+    if (card._raf) return;
+    const cx = e.clientX, cy = e.clientY;
+    card._raf = requestAnimationFrame(() => {
+      card._raf = 0;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", cx - r.left + "px");
+      card.style.setProperty("--my", cy - r.top + "px");
+    });
   });
 
   /* ---------- Detalhes do módulo (modal) ---------- */
@@ -565,8 +571,16 @@
 
   function buildMarquee() {
     const nomes = D.modulos.map((m) => m.nome);
-    const html = nomes.map((n) => `<span class="mq">${esc(n)}</span>`).join("");
-    $("#marquee").innerHTML = html + html;
+    const box = $("#marquee");
+    const one = nomes.map((n) => `<span class="mq">${esc(n)}</span>`).join("");
+    box.innerHTML = one;
+    // repete o conjunto até cobrir a tela; depois duplica para o loop ficar contínuo
+    const w1 = Math.max(1, box.scrollWidth + 14);
+    const rep = Math.max(1, Math.ceil((innerWidth * 1.2) / w1));
+    const set = one.repeat(rep);
+    box.innerHTML = set + set;
+    const setW = w1 * rep;
+    box.style.setProperty("--mq-dur", Math.max(24, Math.round(setW / 55)) + "s");
   }
 
   /* ---------- Init ---------- */

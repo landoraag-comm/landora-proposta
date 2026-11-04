@@ -10,9 +10,11 @@
   const ICONES = ["page", "dashboard", "calendar", "card", "chat", "users", "lock", "bell", "chart", "star", "cart", "zap", "globe", "mobile", "shield"];
   const ICON_NOME = { page: "Página", dashboard: "Painel", calendar: "Agenda", card: "Pagamento", chat: "Chat", users: "Pessoas", lock: "Acesso", bell: "Notificação", chart: "Gráfico", star: "Estrela", cart: "Carrinho", zap: "Raio", globe: "Globo", mobile: "Celular", shield: "Escudo" };
   const BASE = location.href.replace(/admin(\.html)?([?#].*)?$/, "");
-  const linkDe = (slug) => BASE + "?p=" + encodeURIComponent(slug);
+  const RESERVADOS = ["admin", "index", "assets", "styles", "app", "data", "store", "firebase-config", "firebase", "404", "api"];
+  // online: https://dominio/slug (reescrita do Hosting) | demonstração local: ?p=slug
+  const linkDe = (slug) => (S.mode === "firebase" ? location.origin + "/" + encodeURIComponent(slug) : BASE + "?p=" + encodeURIComponent(slug));
 
-  const LOGO = `<svg class="brand-lockup" viewBox="9 -2 990 204" role="img" aria-label="Landora"><use href="assets/logo.svg#layer1"/><text x="219.9" y="184.4" font-family="Manrope,sans-serif" font-weight="400" font-size="25.06" letter-spacing="12.64" fill="#fff">LANDING PAGES BUILT TO CONVERT</text></svg>`;
+  const LOGO = `<svg class="brand-lockup" viewBox="9 -2 990 204" role="img" aria-label="Landora"><use href="#layer1"/><text x="219.9" y="184.4" font-family="Manrope,sans-serif" font-weight="400" font-size="25.06" letter-spacing="12.64" fill="#fff">LANDING PAGES BUILT TO CONVERT</text></svg>`;
 
   function toast(msg) {
     const t = $("#toast");
@@ -118,10 +120,11 @@
           <button class="btn btn-primary" id="salvar">Salvar proposta</button>
         </div>
       </div>
+      ${!ed.novo ? `<div class="panel linkbox"><div><small>LINK PARA ENVIAR AO CLIENTE</small><code id="link-final">${esc(linkDe(p.slug))}</code></div><button class="btn btn-primary btn-sm" id="copiar-link">Copiar link</button></div>` : ""}
       <div class="panel">
         <div class="cols">
           <div class="field"><label for="f-titulo">Nome interno da proposta</label><input id="f-titulo" value="${esc(p.titulo)}" placeholder="Ex.: Proposta Clínica Vida"></div>
-          <div class="field"><label for="f-slug">Endereço (slug)</label><input id="f-slug" value="${esc(p.slug)}" ${ed.novo ? "" : "disabled"} placeholder="clinica-vida"><small>Link final: ${esc(BASE)}?p=<b id="slug-prev">${esc(p.slug || "…")}</b></small></div>
+          <div class="field"><label for="f-slug">Endereço (slug)</label><input id="f-slug" value="${esc(p.slug)}" ${ed.novo ? "" : "disabled"} placeholder="clinica-vida"><small>Link do cliente: <b id="slug-prev">${esc(p.slug ? linkDe(p.slug) : "…")}</b></small></div>
         </div>
         <div class="cols3">
           <div class="field"><label for="f-cliente">Nome do cliente</label><input id="f-cliente" value="${esc(p.cliente)}" placeholder="Aparece na proposta"></div>
@@ -155,9 +158,9 @@
     bindSair();
     $("#voltar").onclick = () => { if (!confirm("Sair sem salvar as alterações?")) return; viewLista(); };
     $("#f-titulo").oninput = (e) => {
-      if (ed.novo && !ed.slugTocado) { $("#f-slug").value = slugify(e.target.value); $("#slug-prev").textContent = $("#f-slug").value || "…"; }
+      if (ed.novo && !ed.slugTocado) { $("#f-slug").value = slugify(e.target.value); $("#slug-prev").textContent = $("#f-slug").value ? linkDe($("#f-slug").value) : "…"; }
     };
-    $("#f-slug").oninput = (e) => { ed.slugTocado = true; e.target.value = slugify(e.target.value); $("#slug-prev").textContent = e.target.value || "…"; };
+    $("#f-slug").oninput = (e) => { ed.slugTocado = true; e.target.value = slugify(e.target.value); $("#slug-prev").textContent = e.target.value ? linkDe(e.target.value) : "…"; };
     $("#addmod").onclick = () => drawerModulo(null);
     $("#import").onclick = () => {
       lerForm();
@@ -179,6 +182,8 @@
       if (a === "down" && i < p.modulos.length - 1) { [p.modulos[i + 1], p.modulos[i]] = [p.modulos[i], p.modulos[i + 1]]; viewEditor(); }
     };
     $("#salvar").onclick = salvar;
+    const cl = $("#copiar-link");
+    if (cl) cl.onclick = async () => { try { await navigator.clipboard.writeText(linkDe(p.slug)); toast("Link copiado"); } catch (_) { toast(linkDe(p.slug)); } };
   }
 
   function lerForm() {
@@ -198,6 +203,7 @@
     if (!p.titulo) return toast("Dê um nome à proposta");
     if (!p.slug) p.slug = slugify(p.titulo);
     if (!p.slug) return toast("Informe o endereço (slug)");
+    if (RESERVADOS.includes(p.slug)) return toast("Esse endereço é reservado, escolha outro");
     if (!p.modulos.length) return toast("Cadastre ao menos um módulo");
     const btn = $("#salvar"); btn.disabled = true; btn.textContent = "Salvando…";
     try {

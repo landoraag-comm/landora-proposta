@@ -20,7 +20,8 @@ Site estático (HTML, CSS e JS puro), sem build.
 
 `admin.html` cria propostas novas usando este site como base: módulos, valores, categorias e até 4 imagens por módulo (aparecem no card e em "Ver detalhes").
 
-- Cada proposta gera um link: `https://SEU-DOMINIO/?p=slug` (opcional: `&cliente=Nome`).
+- Cada proposta gera um link curto para o cliente: `https://SEU-DOMINIO/slug` (ex.: `https://proposta-landora.web.app/garrote-academia`). O Hosting reescreve qualquer caminho para o `index.html`. Em modo demonstração local o link é `?p=slug`.
+- Endereços reservados: admin, index, assets, styles, app, data, store, firebase-config.
 - Dados em `modelos/{slug}` e `modelos/{slug}/modulos/{id}` no Firestore.
 - Login com Google. Quem pode editar é definido em `isAdmin()` no `firestore.rules` (lista de e-mails).
 - Sem `firebase-config.js` preenchido, o painel roda em modo demonstração (localStorage).
