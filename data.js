@@ -5,7 +5,7 @@
  * ATENÇÃO: os valores abaixo são EXEMPLOS. Ajuste antes de enviar ao cliente.
  *
  * Link personalizado por cliente:
- *   index.html?cliente=Academia%20Force
+ *   index.html?cliente=Nome%20do%20Cliente
  */
 window.PROPOSTA = {
   cliente: "Seu Cliente",
@@ -83,8 +83,8 @@ window.PROPOSTA = {
       id: "area-cliente",
       categoria: "relacionamento",
       icone: "lock",
-      nome: "Área do cliente / aluno",
-      desc: "Login individual com histórico, planos, documentos e comunicados.",
+      nome: "Área do cliente",
+      desc: "Login individual com histórico, documentos e comunicados para cada cliente.",
       preco: 2200,
       mensal: 0,
     },
@@ -93,7 +93,7 @@ window.PROPOSTA = {
       categoria: "gestao",
       icone: "zap",
       nome: "Check-in e controle de acesso",
-      desc: "Liberação por QR Code, registro de presença e bloqueio de inadimplentes. Ideal para academias.",
+      desc: "Liberação por QR Code, registro de presença e regras de acesso por perfil.",
       preco: 1900,
       mensal: 0,
     },
@@ -101,8 +101,8 @@ window.PROPOSTA = {
       id: "pedidos",
       categoria: "vendas",
       icone: "cart",
-      nome: "Cardápio digital e pedidos",
-      desc: "Catálogo com fotos, carrinho do cliente e pedidos organizados para a cozinha.",
+      nome: "Catálogo e pedidos online",
+      desc: "Catálogo com fotos, carrinho do cliente e pedidos organizados para a sua equipe.",
       preco: 1700,
       mensal: 0,
     },

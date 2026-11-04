@@ -21,7 +21,7 @@ Site estático (HTML, CSS e JS puro), sem build.
 Use o link com o nome do cliente (as seleções ficam salvas por cliente no navegador dele):
 
 ```
-https://SEU-DOMINIO/?cliente=Academia%20Force
+https://SEU-DOMINIO/?cliente=Nome%20do%20Cliente
 ```
 
 Os valores em `data.js` são **exemplos**. Ajuste preços, módulos e o `whatsapp` (DDI+DDD, só números) antes de enviar.

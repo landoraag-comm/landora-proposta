@@ -65,6 +65,7 @@ a{color:inherit}
   border:1px solid var(--line);box-shadow:0 10px 40px -18px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.05);
 }
 .brand{display:flex;align-items:center;gap:12px;color:var(--text);text-decoration:none}
+.brand-logo{display:block;height:38px;width:auto}
 .brand-icon{width:24px;height:28px;filter:drop-shadow(0 0 12px rgba(11,92,255,.7))}
 .brand-icon.sm{width:16px;height:18px;filter:none}
 .brand-word{font-family:var(--font-brand);font-size:14px;letter-spacing:.22em}
@@ -99,9 +100,17 @@ a{color:inherit}
   -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--w)),#000 calc(100% - var(--w) + 1px));
   mask:radial-gradient(farthest-side,transparent calc(100% - var(--w)),#000 calc(100% - var(--w) + 1px));
 }
-.ring-1{--w:34px;inset:12%;background:conic-gradient(from 0deg,#0b5cff,#a9c6ff,#1b44b8,#5b4bff,#05070c 55%,#0b5cff);animation:spin 20s linear infinite;filter:drop-shadow(0 0 24px rgba(11,92,255,.55))}
 .ring-2{--w:6px;inset:2%;background:conic-gradient(from 180deg,transparent,#3b82ff 30%,transparent 60%);animation:spin 12s linear infinite reverse;opacity:.85}
-.hv-logo{position:relative;width:34%;height:40%;filter:drop-shadow(0 0 30px rgba(11,92,255,.9));animation:floaty 7s ease-in-out infinite}
+.hv-scene{position:relative;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))}
+.scr-line{stroke-dasharray:120;stroke-dashoffset:120;animation:lineDraw 5s ease-in-out infinite}
+.scr-area{opacity:0;animation:areaFade 5s ease-in-out infinite}
+.cta{transform-box:fill-box;transform-origin:center;animation:ctaPulse 3s ease-in-out infinite}
+.cursor{animation:cursorMove 6s ease-in-out infinite}
+.click{transform-box:fill-box;transform-origin:center;opacity:0;animation:clickRing 6s ease-out infinite}
+.notif{opacity:0;animation:notif 6s ease-in-out infinite}
+.typing{animation:typing .45s ease-in-out infinite alternate}
+.head{transform-box:fill-box;transform-origin:50% 100%;animation:nod 4s ease-in-out infinite}
+.steam{stroke-dasharray:6 6;opacity:.55;animation:steam 2.4s linear infinite}
 
 .float-card{
   position:absolute;display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-radius:18px;min-width:150px;
@@ -113,9 +122,9 @@ a{color:inherit}
 .float-card b{font-family:var(--font-display);font-size:22px;letter-spacing:-.02em}
 .float-card span{font-size:12px;color:var(--muted)}
 .float-card i{font-style:normal;color:var(--blue-soft)}
-.fc-1{left:-4%;top:14%;animation-delay:-1s}
-.fc-2{right:-2%;top:38%;animation-delay:-3s;border-style:dashed;border-color:rgba(122,168,255,.45)}
-.fc-3{left:6%;bottom:8%;animation-delay:-5s}
+.fc-1{left:-4%;top:2%;animation-delay:-1s}
+.fc-2{right:-6%;bottom:2%;animation-delay:-3s;border-style:dashed;border-color:rgba(122,168,255,.45)}
+.fc-3{right:-8%;top:-2%;animation-delay:-5s}
 .spark{display:flex;align-items:flex-end;gap:4px;height:26px;margin-top:8px}
 .spark i{flex:1;border-radius:3px;background:linear-gradient(180deg,#3b82ff,rgba(11,92,255,.15));height:30%;animation:bars 3.2s ease-in-out infinite}
 .spark i:nth-child(2){height:55%;animation-delay:.2s}.spark i:nth-child(3){height:40%;animation-delay:.4s}
@@ -385,6 +394,15 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
 @keyframes ripple{from{transform:scale(1);opacity:.8}to{transform:scale(1.9);opacity:0}}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @keyframes fade{from{opacity:0}}
+@keyframes lineDraw{0%{stroke-dashoffset:120}40%,88%{stroke-dashoffset:0}100%{stroke-dashoffset:120}}
+@keyframes areaFade{0%,15%{opacity:0}45%,88%{opacity:1}100%{opacity:0}}
+@keyframes ctaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes cursorMove{0%{transform:translate(412px,338px)}30%,62%{transform:translate(272px,309px)}100%{transform:translate(412px,338px)}}
+@keyframes clickRing{0%,38%{opacity:0;transform:scale(.3)}42%{opacity:.9}62%{opacity:0;transform:scale(2.6)}100%{opacity:0}}
+@keyframes notif{0%,44%{opacity:0;transform:translateY(10px)}50%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateY(-6px)}}
+@keyframes typing{to{transform:translateY(2px)}}
+@keyframes nod{0%,100%{transform:rotate(0)}50%{transform:rotate(-2.2deg)}}
+@keyframes steam{to{stroke-dashoffset:-24}}
 
 /* ---------- Responsivo ---------- */
 @media (max-width:1080px){
@@ -392,7 +410,7 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
 }
 @media (max-width:980px){
   .hero{grid-template-columns:1fr;min-height:0;padding-top:28px}
-  .hero-visual{max-width:230px;margin:0 auto;order:-1}
+  .hero-visual{max-width:320px;margin:0 auto;order:-1}
   .float-card{display:none}
   .steps{grid-template-columns:1fr}
   .layout{grid-template-columns:1fr}
@@ -417,6 +435,7 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
   .parties,.fields{grid-template-columns:1fr}
   .hero h1{max-width:none}
   .topbar{padding-left:16px}
+  .brand-logo{height:30px}
   .btn-sm{display:none}
 }
 

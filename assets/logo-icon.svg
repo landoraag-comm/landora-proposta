@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 330">
-  <defs>
-    <linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3f8f"/><stop offset="1" stop-color="#0b5cff"/></linearGradient>
-    <linearGradient id="b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b5cff"/><stop offset="1" stop-color="#1b44b8"/></linearGradient>
-  </defs>
-  <rect width="290" height="330" rx="40" fill="#05070c"/>
-  <g transform="translate(20 8) scale(.9)">
-    <polygon points="8,80 85,7 85,237 8,312" fill="url(#a)"/>
-    <polygon points="38,322 142,217 195,217 282,322" fill="url(#b)"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="252.31 184.38 547.01 631.24"><defs><linearGradient id="lg-a" gradientUnits="userSpaceOnUse" x1="252.31276" y1="336.39911" x2="404.33191" y2="646.86389"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0057ff"/></linearGradient><linearGradient id="lg-b" gradientUnits="userSpaceOnUse" x1="799.31927" y1="815.62048" x2="522.25476" y2="605.17554"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0057ff"/></linearGradient></defs><path fill="url(#lg-a)" d="M 404.33191,184.37944 252.31276,336.3991 v 231.10941 0.13229 231.24222 L 404.33191,646.86388 V 567.6408 530.225 415.62166 v -0.0176 z"/><path fill="url(#lg-b)" d="M 522.25476,605.17553 311.8098,815.62049 v 0 h 487.50948 v 0 L 622.93839,605.17553 Z"/></svg>

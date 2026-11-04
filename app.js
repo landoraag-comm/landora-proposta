@@ -507,7 +507,7 @@
 
   /* ---------- Init ---------- */
   function init() {
-    $("#cliente-nome").textContent = cliente === "Seu Cliente" ? "seu negócio" : cliente;
+    $("#badge-txt").textContent = cliente === "Seu Cliente" ? "Proposta personalizada" : "Proposta para " + cliente;
     $("#parte-cliente").textContent = cliente;
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
     $("#validade-dias").textContent = D.validadeDias;
