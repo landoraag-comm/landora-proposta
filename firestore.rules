@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Propostas assinadas: qualquer visitante pode CRIAR, ninguém lê pelo site.
+    // Leia pelo Console do Firebase ou com um usuário admin autenticado.
+    match /propostas/{id} {
+      allow create: if request.resource.data.keys().hasAll(['protocolo','cliente','nome','documento','assinatura','contrato'])
+                    && request.resource.data.contrato is list
+                    && request.resource.data.contrato.size() > 0
+                    && request.resource.data.nome is string
+                    && request.resource.data.nome.size() < 200
+                    && request.resource.data.assinatura is string
+                    && request.resource.data.assinatura.size() < 400000;
+      allow read, update, delete: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+}

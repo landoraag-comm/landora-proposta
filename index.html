@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proposta Landora</title>
+  <meta name="description" content="Monte sua proposta módulo por módulo com a Landora.">
+  <meta name="theme-color" content="#05070c">
+  <link rel="icon" href="assets/logo-icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg-a" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a3f8f"/><stop offset="1" stop-color="#0b5cff"/>
+    </linearGradient>
+    <linearGradient id="lg-b" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0b5cff"/><stop offset="1" stop-color="#1b44b8"/>
+    </linearGradient>
+    <symbol id="logo-icon" viewBox="0 0 290 330">
+      <polygon points="8,80 85,7 85,237 8,312" fill="url(#lg-a)"/>
+      <polygon points="38,322 142,217 195,217 282,322" fill="url(#lg-b)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <a class="brand" href="#topo" aria-label="Landora">
+    <svg class="brand-icon" aria-hidden="true"><use href="#logo-icon"/></svg>
+    <span class="brand-word">LANDORA</span>
+  </a>
+  <div class="topbar-meta">
+    <span class="pill" id="validade"></span>
+  </div>
+</header>
+
+<main id="topo">
+  <section class="hero">
+    <p class="eyebrow">Proposta personalizada</p>
+    <h1>Monte o app de <span class="accent" id="cliente-nome">seu negócio</span>, módulo por módulo.</h1>
+    <p class="lead">Escolha o que entra agora no contrato e o que você quer deixar para depois. Cada módulo tem seu valor, e o total se atualiza na hora.</p>
+
+    <div class="how">
+      <div class="how-item">
+        <span class="how-badge how-now">1</span>
+        <div><strong>Contrato</strong><span>O que você quer desde o início, com assinatura.</span></div>
+      </div>
+      <div class="how-item">
+        <span class="how-badge how-later">2</span>
+        <div><strong>Depois</strong><span>O que te interessa, mas não agora. Fica reservado.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="vitrine" aria-labelledby="vitrine-titulo">
+      <div class="vitrine-head">
+        <h2 id="vitrine-titulo">Vitrine de módulos</h2>
+        <div class="filters" id="filtros" role="tablist" aria-label="Categorias"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <aside class="cart" id="carrinho" aria-label="Seus carrinhos">
+      <div class="cart-inner">
+        <div class="cart-head">
+          <h2>Sua seleção</h2>
+          <button class="icon-btn cart-close" id="cart-close" aria-label="Fechar carrinho">&times;</button>
+        </div>
+
+        <div class="cart-block">
+          <div class="cart-title"><span class="dot dot-now"></span>Contrato <small>(agora)</small></div>
+          <ul class="cart-list" id="lista-now"></ul>
+          <div class="cart-total" id="total-now"></div>
+        </div>
+
+        <div class="cart-block cart-block-later">
+          <div class="cart-title"><span class="dot dot-later"></span>Depois <small>(reservado)</small></div>
+          <ul class="cart-list" id="lista-later"></ul>
+          <div class="cart-total cart-total-later" id="total-later"></div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="ir-assinar" disabled>Ir para assinatura</button>
+        <button class="link-btn" id="limpar">Limpar seleção</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="contrato" id="contrato" aria-labelledby="contrato-titulo">
+    <div class="contrato-card">
+      <p class="eyebrow">Passo final</p>
+      <h2 id="contrato-titulo">Contrato e assinatura</h2>
+
+      <div id="contrato-vazio" class="empty-box">
+        Adicione ao menos um módulo ao <strong>Contrato</strong> para liberar a assinatura.
+      </div>
+
+      <div id="contrato-form" hidden>
+        <div class="parties">
+          <div><small>Contratada</small><strong>Landora</strong><span id="inst"></span></div>
+          <div><small>Contratante</small><strong id="parte-cliente"></strong><span>Proposta válida por <span id="validade-dias"></span> dias</span></div>
+        </div>
+
+        <h3>Módulos contratados</h3>
+        <div class="table-wrap">
+          <table class="resumo">
+            <thead><tr><th>Módulo</th><th class="num">Único</th><th class="num">Mensal</th></tr></thead>
+            <tbody id="resumo-linhas"></tbody>
+            <tfoot id="resumo-total"></tfoot>
+          </table>
+        </div>
+
+        <h3>Condições</h3>
+        <ul class="termos" id="termos"></ul>
+
+        <form id="form-assinatura" novalidate>
+          <div class="fields">
+            <label>Nome completo
+              <input type="text" id="f-nome" autocomplete="name" required>
+            </label>
+            <label>CPF ou CNPJ
+              <input type="text" id="f-doc" inputmode="numeric" autocomplete="off" required>
+            </label>
+          </div>
+
+          <div class="sign">
+            <div class="sign-head">
+              <span>Assinatura</span>
+              <button type="button" class="link-btn" id="sign-clear">Limpar</button>
+            </div>
+            <canvas id="sign-pad" width="900" height="260" aria-label="Área para assinar com o dedo ou o mouse"></canvas>
+            <span class="sign-hint" id="sign-hint">Assine aqui com o dedo ou o mouse</span>
+          </div>
+
+          <label class="check">
+            <input type="checkbox" id="f-aceite" required>
+            <span>Li e concordo com as condições desta proposta.</span>
+          </label>
+
+          <p class="form-error" id="form-erro" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-lg">Assinar contrato</button>
+        </form>
+      </div>
+
+      <div id="contrato-ok" class="done" hidden>
+        <div class="done-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h3>Contrato assinado</h3>
+        <p>Protocolo <strong id="protocolo"></strong></p>
+        <p class="muted">Agora é só enviar o resumo para a Landora iniciar o projeto.</p>
+        <div class="done-actions">
+          <a class="btn btn-primary" id="btn-wpp" target="_blank" rel="noopener" hidden>Enviar pelo WhatsApp</a>
+          <button class="btn btn-primary" id="btn-copiar" type="button" hidden>Copiar resumo</button>
+          <button class="btn btn-ghost" id="btn-pdf" type="button">Baixar PDF</button>
+          <button class="link-btn" id="btn-editar" type="button">Editar seleção</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <svg class="brand-icon sm" aria-hidden="true"><use href="#logo-icon"/></svg>
+  <span>Landing pages built to convert</span>
+  <span class="sep">·</span>
+  <span id="footer-ig"></span>
+</footer>
+
+<!-- Barra do carrinho no mobile -->
+<button class="cart-bar" id="cart-bar" aria-controls="carrinho">
+  <span class="cart-bar-count" id="bar-count">0</span>
+  <span class="cart-bar-text"><small>Contrato</small><strong id="bar-total">R$ 0,00</strong></span>
+  <span class="cart-bar-cta">Ver seleção</span>
+</button>
+<div class="scrim" id="scrim" hidden></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Folha de impressão (PDF) -->
+<section id="print-sheet" aria-hidden="true"></section>
+
+<script src="data.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
