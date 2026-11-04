@@ -43,6 +43,7 @@
     <div class="topbar-meta">
       <span class="pill" id="validade"></span>
       <a class="btn btn-primary btn-sm btn-arrow" href="#vitrine">Começar <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+      <button type="button" class="menu-btn" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
@@ -285,6 +286,23 @@
   <span class="cart-bar-text"><small>Contrato</small><strong id="bar-total">R$ 0,00</strong></span>
   <span class="cart-bar-cta">Ver seleção</span>
 </button>
+<div class="side-scrim" id="side-scrim" hidden></div>
+<aside class="side" id="side" aria-label="Menu" aria-hidden="true">
+  <div class="side-head">
+    <svg class="brand-lockup" viewBox="9 -2 990 204" role="img" aria-label="Landora"><use href="assets/logo.svg#layer1"/></svg>
+    <button type="button" class="icon-btn side-close" id="side-close" aria-label="Fechar menu">×</button>
+  </div>
+  <nav class="side-nav" aria-label="Seções">
+    <a href="#vitrine"><i>01</i>Módulos</a>
+    <a href="#como"><i>02</i>Como funciona</a>
+    <a href="#contrato"><i>03</i>Contrato</a>
+  </nav>
+  <div class="side-foot">
+    <span class="pill" id="validade-side"></span>
+    <a class="btn btn-primary btn-block btn-arrow" href="#vitrine">Começar <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+  </div>
+</aside>
+
 <div class="boot" id="boot" hidden></div>
 
 <div class="modal" id="mod-det" role="dialog" aria-modal="true" aria-labelledby="det-title" hidden>

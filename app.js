@@ -570,6 +570,31 @@
   }
 
   /* ---------- Init ---------- */
+  function setupSideMenu() {
+    const side = $("#side"), sc = $("#side-scrim"), btn = $("#menu-btn");
+    let t;
+    const open = () => {
+      clearTimeout(t);
+      sc.hidden = false; side.setAttribute("aria-hidden", "false");
+      btn.setAttribute("aria-expanded", "true");
+      document.body.classList.add("cart-open");
+      requestAnimationFrame(() => { side.classList.add("on"); sc.classList.add("on"); });
+      $("#side-close").focus();
+    };
+    const close = () => {
+      side.classList.remove("on"); sc.classList.remove("on");
+      side.setAttribute("aria-hidden", "true"); btn.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("cart-open");
+      t = setTimeout(() => { sc.hidden = true; }, 320);
+    };
+    btn.addEventListener("click", open);
+    $("#side-close").addEventListener("click", close);
+    sc.addEventListener("click", close);
+    side.addEventListener("click", (e) => { if (e.target.closest("a")) close(); });
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && side.classList.contains("on")) { close(); btn.focus(); } });
+    addEventListener("resize", () => { if (innerWidth > 1080 && side.classList.contains("on")) close(); });
+  }
+
   function setNavHeight() {
     const tb = $(".topbar-wrap");
     if (tb) document.documentElement.style.setProperty("--nav-h", tb.offsetHeight + "px");
@@ -629,6 +654,8 @@
     $("#badge-txt").textContent = cliente === "Seu Cliente" ? "Proposta personalizada" : "Proposta para " + cliente;
     $("#parte-cliente").textContent = cliente;
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
+    $("#validade-side").textContent = "Válida por " + D.validadeDias + " dias";
+    setupSideMenu();
     $("#validade-dias").textContent = D.validadeDias;
     $("#inst").textContent = D.instagram;
     const igUser = (D.instagram || "").replace("@", "");
