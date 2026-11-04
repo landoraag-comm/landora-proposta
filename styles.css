@@ -89,7 +89,7 @@ a{color:inherit}
 .grad-text{background:var(--g-text);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 8s ease-in-out infinite alternate}
 .lead{margin-top:22px;max-width:52ch;color:var(--muted);font-size:clamp(15px,1.5vw,18px)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
-.hero-note{margin-top:30px;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:rgba(154,164,189,.6)}
+.hero-note{margin-top:30px;font-family:'Manrope','Inter',sans-serif;font-weight:300;font-size:12px;letter-spacing:.5em;text-transform:uppercase;color:rgba(244,246,251,.7)}
 
 .rise{opacity:0;transform:translateY(22px);animation:rise .9s var(--ease) forwards;animation-delay:calc(var(--d,0) * 110ms + 100ms)}
 
@@ -357,8 +357,9 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
 .muted{color:var(--muted);margin-top:6px}
 .done-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px;align-items:center}
 
-.footer{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:30px 16px 110px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+.footer{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:56px 16px 120px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
 .sep{opacity:.5}
+.logo-full{width:min(560px,88vw);height:auto;display:block}
 
 /* ---------- Reveal ---------- */
 .reveal{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);transition-delay:calc(var(--d,0) * 110ms)}
