@@ -102,7 +102,7 @@
   /* ---------- Editor ---------- */
   function novaProposta() {
     const b = window.PROPOSTA;
-    return { slug: "", titulo: "", cliente: "", validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
+    return { slug: "", titulo: "", cliente: "", logo: "", validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
   }
 
   function abrir(p, novo = true) {
@@ -130,6 +130,17 @@
           <div class="field"><label for="f-cliente">Nome do cliente</label><input id="f-cliente" value="${esc(p.cliente)}" placeholder="Aparece na proposta"></div>
           <div class="field"><label for="f-val">Validade (dias)</label><input id="f-val" type="number" min="1" value="${esc(p.validadeDias)}"></div>
           <div class="field"><label for="f-wpp">WhatsApp (DDI+DDD)</label><input id="f-wpp" value="${esc(p.whatsapp)}" placeholder="5515999999999" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>Logo do cliente</label>
+          <div class="logo-up">
+            <div class="logo-prev" id="logo-prev">${p.logo ? `<img alt="" src="${esc(p.logo)}">` : "<span>sem logo</span>"}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" class="btn btn-ghost btn-sm" id="logo-btn">Enviar logo</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="logo-del" ${p.logo ? "" : "hidden"}>Remover</button>
+            </div>
+            <input type="file" id="logo-file" accept="image/*" hidden>
+          </div>
+          <small>Aparece na proposta junto ao nome do cliente. Prefira PNG com fundo transparente.</small>
         </div>
         <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" value="${esc(p.instagram)}" placeholder="@landora.ag"></div>
         <div class="field" style="margin:0"><label for="f-termos">Condições (uma por linha)</label><textarea id="f-termos" rows="4">${esc((p.termos || []).join("\n"))}</textarea></div>
@@ -180,6 +191,17 @@
       if (a === "del" && confirm("Remover este módulo?")) { p.modulos.splice(i, 1); viewEditor(); }
       if (a === "up" && i > 0) { [p.modulos[i - 1], p.modulos[i]] = [p.modulos[i], p.modulos[i - 1]]; viewEditor(); }
       if (a === "down" && i < p.modulos.length - 1) { [p.modulos[i + 1], p.modulos[i]] = [p.modulos[i], p.modulos[i + 1]]; viewEditor(); }
+    };
+    const pintaLogo = () => {
+      $("#logo-prev").innerHTML = p.logo ? `<img alt="" src="${esc(p.logo)}">` : "<span>sem logo</span>";
+      $("#logo-del").hidden = !p.logo;
+    };
+    $("#logo-btn").onclick = () => $("#logo-file").click();
+    $("#logo-del").onclick = () => { p.logo = ""; pintaLogo(); };
+    $("#logo-file").onchange = async (e) => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try { p.logo = await comprimirLogo(f); pintaLogo(); } catch (_) { toast("Não consegui ler a imagem"); }
     };
     $("#salvar").onclick = salvar;
     const cl = $("#copiar-link");
@@ -285,6 +307,26 @@
       fechar(); viewEditor();
     };
     $("#m-nome", d).focus();
+  }
+
+  // logo: mantém transparência (PNG), máx. 480x240; se ficar pesada, converte
+  function comprimirLogo(file) {
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const w0 = img.naturalWidth || img.width || 480, h0 = img.naturalHeight || img.height || 240;
+        const k = Math.min(1, 480 / w0, 240 / h0);
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(w0 * k)); c.height = Math.max(1, Math.round(h0 * k));
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        let out = c.toDataURL("image/png");
+        if (out.length > 180000) { const w = c.toDataURL("image/webp", 0.85); if (w.startsWith("data:image/webp")) out = w; }
+        if (out.length > 180000) out = c.toDataURL("image/jpeg", 0.85);
+        URL.revokeObjectURL(url); res(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("img")); };
+      img.src = url;
+    });
   }
 
   // reduz a imagem (máx. 1000px) e converte para JPEG, p/ caber no Firestore

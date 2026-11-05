@@ -49,3 +49,7 @@
 .linkbox{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
 .linkbox small{display:block;color:var(--muted);letter-spacing:.12em;font-size:11px;margin-bottom:4px}
 .linkbox code{color:#fff;word-break:break-all;font-size:15px}
+
+.logo-up{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo-prev{width:200px;height:80px;border-radius:14px;background:#fff;display:grid;place-items:center;overflow:hidden;color:#555;font-size:12px}
+.logo-prev img{max-width:90%;max-height:90%;object-fit:contain}

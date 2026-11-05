@@ -421,7 +421,7 @@
     const row = (id) => `<tr><td>${esc(byId[id].nome)}</td><td class="num">${byId[id].preco ? brl(byId[id].preco) : "—"}</td><td class="num">${byId[id].mensal ? brl(byId[id].mensal) : "—"}</td></tr>`;
     $("#print-sheet").innerHTML = `
       <h1>Contrato Landora</h1>
-      <p class="meta">Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
+      <p class="meta">${D.logo ? `<img alt="" src="${esc(D.logo)}" style="max-height:48px;max-width:180px;display:block;margin-bottom:8px">` : ""}Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
       <h2>Módulos contratados</h2>
       <table><thead><tr><th>Módulo</th><th class="num">Único</th><th class="num">Mensal</th></tr></thead>
       <tbody>${state.now.map(row).join("")}</tbody>
@@ -622,6 +622,7 @@
     return {
       ...base,
       cliente: m.cliente || base.cliente,
+      logo: typeof m.logo === "string" && m.logo.startsWith("data:image/") ? m.logo : "",
       validadeDias: +m.validadeDias || base.validadeDias,
       whatsapp: (m.whatsapp || "").replace(/\D/g, ""),
       instagram: m.instagram || base.instagram,
@@ -667,6 +668,16 @@
     addEventListener("resize", setNavHeight);
     $("#badge-txt").textContent = cliente === "Seu Cliente" ? "Proposta personalizada" : "Proposta para " + cliente;
     $("#parte-cliente").textContent = cliente;
+    if (D.logo) {
+      const chip = $("#client-chip");
+      $("#client-logo", chip).src = D.logo;
+      $("#client-name", chip).textContent = cliente;
+      chip.hidden = false;
+      $(".badge").hidden = true;
+      const pl = $("#parte-logo");
+      pl.hidden = false; pl.querySelector("img").src = D.logo;
+      const fl = $("#ft-logo"); fl.hidden = false; fl.src = D.logo;
+    }
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
     $("#validade-side").textContent = "Válida por " + D.validadeDias + " dias";
     setupSideMenu();

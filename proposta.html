@@ -55,6 +55,10 @@
   <div class="hero-bg" aria-hidden="true"></div>
   <section class="hero">
     <div class="hero-copy">
+      <div class="client-chip rise" id="client-chip" style="--d:0" hidden>
+        <span class="logo-wrap"><img id="client-logo" alt=""></span>
+        <span class="client-txt"><small>Proposta preparada para</small><b id="client-name"></b></span>
+      </div>
       <p class="badge rise" style="--d:0"><span class="live-dot"></span><span id="badge-txt">Proposta personalizada</span></p>
       <h1 class="rise" style="--d:1">Monte seu sistema <span class="grad-text">personalizado</span> com os módulos da <span class="grad-alt">sua escolha</span>.</h1>
       <p class="lead rise" style="--d:2">Escolha os módulos que fazem sentido para o seu negócio, separe o que entra agora no contrato do que fica para depois e acompanhe o valor total em tempo real.</p>
@@ -173,7 +177,7 @@
       <div id="contrato-form" hidden>
         <div class="parties">
           <div><small>Contratada</small><strong>Landora</strong><span id="inst"></span></div>
-          <div><small>Contratante</small><strong id="parte-cliente"></strong><span>Proposta válida por <span id="validade-dias"></span> dias</span></div>
+          <div><small>Contratante</small><span class="logo-wrap sm" id="parte-logo" hidden><img alt=""></span><strong id="parte-cliente"></strong><span>Proposta válida por <span id="validade-dias"></span> dias</span></div>
         </div>
 
         <h3>Módulos contratados</h3>
@@ -270,7 +274,7 @@
     </div>
     <div class="ft-col">
       <h4>Esta proposta</h4>
-      <span id="ft-cli-row">Cliente: <b id="ft-cliente"></b></span>
+      <span id="ft-cli-row"><img id="ft-logo" alt="" hidden style="height:22px;width:auto;background:#fff;border-radius:6px;padding:2px 6px;vertical-align:middle;margin-right:8px"> Cliente: <b id="ft-cliente"></b></span>
       <span>Validade: <b id="ft-validade"></b></span>
       <span>Contato: <a id="ft-ig2" href="https://instagram.com/landora.ag" target="_blank" rel="noopener"></a></span>
     </div>
