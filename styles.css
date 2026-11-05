@@ -1,4 +1,4 @@
-:root{
+:root{color-scheme:dark;
   --bg:#0A0A0A;
   --bg-2:#0A0A0A;
   --panel:rgba(31,41,55,.62);
@@ -93,8 +93,8 @@ a{color:inherit}
 }
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--blue-3);box-shadow:0 0 0 0 rgba(0,87,255,.7);animation:ping 2s infinite}
 .hero h1{font-size:clamp(34px,3.9vw,50px);max-width:21ch;font-weight:700;letter-spacing:-.035em}
-.grad-text{background:linear-gradient(90deg,#FFFFFF 0%,#0057FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.grad-alt{background:linear-gradient(90deg,#0057FF 0%,#FFFFFF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-text{forced-color-adjust:none;background:linear-gradient(90deg,#FFFFFF 0%,#0057FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-alt{forced-color-adjust:none;background:linear-gradient(90deg,#0057FF 0%,#FFFFFF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{margin-top:22px;max-width:52ch;color:var(--muted);font-size:clamp(15px,1.5vw,18px)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
 .hero-note{margin-top:30px;font-family:'Manrope','Inter',sans-serif;font-weight:300;font-size:12px;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.7)}
@@ -617,3 +617,15 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
 .plano-btn[aria-pressed="true"]::after{display:none}
 .plano-line{color:#fff;font-size:12.5px;justify-content:flex-start!important}
 .logo-wrap.transp{background:transparent;padding:0 4px}
+
+/* ---------- Filtros com ícones ---------- */
+.chip{display:inline-flex;align-items:center;gap:7px}
+.chip-ic{display:inline-grid;place-items:center}
+.chip-ic svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:980px){
+  .filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px;overflow:visible;border-radius:18px}
+  .chip{flex-direction:column;gap:5px;padding:10px 2px 9px;border-radius:12px;font-size:11px;line-height:1.1;min-width:0;border:1px solid transparent;background:rgba(255,255,255,.03)}
+  .chip-ic svg{width:19px;height:19px}
+  .chip-t{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip[aria-selected="true"]{border-color:rgba(0,87,255,.6)}
+}

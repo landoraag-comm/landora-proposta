@@ -31,6 +31,9 @@
     zap: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
     globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
     mobile: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+    grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    tool: '<path d="M14.5 6.5a4 4 0 0 0 4.9 4.9L21 13l-8 8-4-4 8-8zM3 21l5-5"/>',
+    leaf: '<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15M5 19c2-5 5-8 9-10"/>',
     shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   };
   const icon = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k] || ICONS.page}</svg>`;
@@ -135,7 +138,10 @@
       b.className = "chip";
       b.type = "button";
       b.role = "tab";
-      b.textContent = c.nome;
+      const n = String(c.nome).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const ic = /todos/.test(n) ? "grid" : /site|vitrine|web/.test(n) ? "globe" : /gest|admin|painel/.test(n) ? "dashboard" : /aluno|app|mobile/.test(n) ? "mobile" : /nutri|diet|saude/.test(n) ? "leaf" : /venda|loja|checkout|pagam/.test(n) ? "cart" : /manut|suporte|hosped/.test(n) ? "tool" : /ia\b|chat/.test(n) ? "chat" : "star";
+      b.innerHTML = `<span class="chip-ic">${icon(ic)}</span><span class="chip-t"></span>`;
+      b.querySelector(".chip-t").textContent = c.nome;
       b.setAttribute("aria-selected", String(state.filtro === c.id));
       b.addEventListener("click", () => {
         if (state.filtro === c.id) return;
