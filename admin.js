@@ -61,7 +61,7 @@
     }
     app.innerHTML = topo() + `
       <div class="sec-h" style="margin-top:0"><div><h1>Propostas</h1><p class="sub" style="margin:0">Cada proposta usa o site como base, com os módulos e valores que você cadastrar.</p></div>
-      <button class="btn btn-primary" id="nova">+ Nova proposta</button></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" id="imp-json">Importar proposta (.json)</button><button class="btn btn-primary" id="nova">+ Nova proposta</button></div><input type="file" id="imp-file" accept="application/json,.json" hidden></div>
       ${lista.length ? `<div class="grid-p">${lista.map((p) => `
         <article class="panel pcard" data-slug="${esc(p.slug)}">
           <h3>${esc(p.titulo || p.slug)}</h3>
@@ -77,6 +77,27 @@
         </article>`).join("")}</div>` : `<div class="panel empty">Nenhuma proposta ainda. Clique em “Nova proposta”.</div>`}`;
     bindSair();
     $("#nova").onclick = () => abrir(novaProposta());
+    /* importa uma proposta pronta (arquivo .json) e abre no editor; ela só é gravada quando você clica em "Salvar proposta" */
+    $("#imp-json").onclick = () => $("#imp-file").click();
+    $("#imp-file").onchange = async (e) => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try {
+        const j = JSON.parse(await f.text());
+        if (!j || !Array.isArray(j.modulos) || !j.modulos.length) throw new Error("sem módulos");
+        const b = window.PROPOSTA, usados = new Set();
+        const p = {
+          slug: slugify(j.slug || j.titulo || j.cliente || ""), titulo: String(j.titulo || j.cliente || "").slice(0, 120), cliente: String(j.cliente || "").slice(0, 80),
+          logo: typeof j.logo === "string" && j.logo.startsWith("data:image/") ? j.logo : "", validadeDias: Math.max(1, parseInt(j.validadeDias, 10) || b.validadeDias || 15),
+          whatsapp: String(j.whatsapp || "").replace(/\D/g, ""), instagram: String(j.instagram || b.instagram || ""),
+          termos: Array.isArray(j.termos) && j.termos.length ? j.termos.map(String) : b.termos.slice(),
+          modulos: j.modulos.map((m, i) => { let id = slugify(m.id || m.nome || "modulo") || "modulo"; while (usados.has(id)) id += "-" + uid().slice(0, 2); usados.add(id);
+            return { id, categoria: String(m.categoria || ""), icone: ICONES.includes(m.icone) ? m.icone : "page", nome: String(m.nome || "Módulo"), desc: String(m.desc || ""), detalhes: String(m.detalhes || ""),
+              imagens: Array.isArray(m.imagens) ? m.imagens.filter((u) => typeof u === "string" && u.startsWith("data:image/")).slice(0, 4) : [], preco: Math.max(0, +m.preco || 0), mensal: Math.max(0, +m.mensal || 0) }; }),
+        };
+        abrir(p, true); toast("Proposta importada: confira e clique em Salvar");
+      } catch (err) { toast("Arquivo inválido: " + (err.message || "JSON")); }
+    };
     app.querySelectorAll(".pcard").forEach((c) => {
       const p = lista.find((x) => x.slug === c.dataset.slug);
       c.addEventListener("click", async (e) => {
