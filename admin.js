@@ -73,6 +73,7 @@
           <div class="row">
             <button class="btn btn-primary btn-sm" data-a="edit">Editar</button>
             <a class="btn btn-ghost btn-sm" href="${esc(linkDe(p.slug))}" target="_blank" rel="noopener">Abrir</a>
+            <button class="btn btn-ghost btn-sm" data-a="rel">Relatório</button>
             <button class="btn btn-ghost btn-sm" data-a="copy">Copiar link</button>
             <button class="btn btn-ghost btn-sm" data-a="dup">Duplicar</button>
             <button class="btn btn-ghost btn-sm" data-a="del">Excluir</button>
@@ -113,6 +114,7 @@
         const a = e.target.dataset.a;
         if (!a) return;
         if (a === "edit") abrir(JSON.parse(JSON.stringify(p)), false);
+        if (a === "rel") window.Relatorio.abrir(p, linkDe(p.slug));
         if (a === "copy") { try { await navigator.clipboard.writeText(linkDe(p.slug)); toast("Link copiado"); } catch (_) { toast(linkDe(p.slug)); } }
         if (a === "dup") {
           const novo = JSON.parse(JSON.stringify(p));
@@ -147,6 +149,7 @@
         <div><button class="link-btn" id="voltar">← Voltar às propostas</button><h1>${ed.novo ? "Nova proposta" : "Editar proposta"}</h1></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           ${!ed.novo ? `<a class="btn btn-ghost" href="${esc(linkDe(p.slug))}" target="_blank" rel="noopener">Ver proposta</a>` : ""}
+          <button class="btn btn-ghost" id="relatorio">Relatório</button>
           <button class="btn btn-primary" id="salvar">Salvar proposta</button>
         </div>
       </div>
@@ -270,6 +273,7 @@
       if (a === "up" && i > 0) { [L[i - 1], L[i]] = [L[i], L[i - 1]]; viewEditor(); }
       if (a === "down" && i < L.length - 1) { [L[i + 1], L[i]] = [L[i], L[i + 1]]; viewEditor(); }
     };
+    $("#relatorio").onclick = () => { lerForm(); window.Relatorio.abrir(ed.p, ed.p.slug ? linkDe(ed.p.slug) : ""); };
     $("#salvar").onclick = salvar;
     const cl = $("#copiar-link");
     if (cl) cl.onclick = async () => { try { await navigator.clipboard.writeText(linkDe(p.slug)); toast("Link copiado"); } catch (_) { toast(linkDe(p.slug)); } };
