@@ -8,7 +8,7 @@
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const params = new URLSearchParams(location.search);
-  const RESERVED = ["", "index", "index.html", "admin", "admin.html", "proposta", "proposta.html"];
+  const RESERVED = ["", "index", "index.html", "admin", "admin.html", "proposta", "proposta.html", "relatorio", "relatorio.html"];
   const pathSlug = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "").toLowerCase();
   const slug = (params.get("p") || (RESERVED.includes(pathSlug) || /\.[a-z0-9]+$/.test(pathSlug) ? "" : pathSlug)).trim().toLowerCase();
   let cliente = "";

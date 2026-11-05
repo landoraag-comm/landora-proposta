@@ -10,7 +10,7 @@
   const ICONES = ["page", "dashboard", "calendar", "card", "chat", "users", "lock", "bell", "chart", "star", "cart", "zap", "globe", "mobile", "shield"];
   const ICON_NOME = { page: "Página", dashboard: "Painel", calendar: "Agenda", card: "Pagamento", chat: "Chat", users: "Pessoas", lock: "Acesso", bell: "Notificação", chart: "Gráfico", star: "Estrela", cart: "Carrinho", zap: "Raio", globe: "Globo", mobile: "Celular", shield: "Escudo" };
   const BASE = location.href.split(/[?#]/)[0].replace(/[^/]*$/, "");
-  const RESERVADOS = ["admin", "index", "proposta", "assets", "styles", "app", "data", "store", "firebase-config", "firebase", "404", "api"];
+  const RESERVADOS = ["admin", "index", "proposta", "relatorio", "assets", "styles", "app", "data", "store", "firebase-config", "firebase", "404", "api"];
   // online: https://dominio/slug (reescrita do Hosting) | demonstração local: ?p=slug
   const linkDe = (slug) => (S.mode === "firebase" ? location.origin + "/" + encodeURIComponent(slug) : BASE + "proposta.html?p=" + encodeURIComponent(slug));
 
