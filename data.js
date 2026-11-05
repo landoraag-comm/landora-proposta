@@ -9,6 +9,7 @@
  */
 window.PROPOSTA = {
   cliente: "Seu Cliente",
+  planos: [],
   validadeDias: 15,
   // WhatsApp da Landora com DDI+DDD, só números (ex.: "5515999999999").
   // Se ficar vazio, o botão vira "Copiar resumo".

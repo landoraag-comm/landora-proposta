@@ -1,0 +1,312 @@
+{
+ "slug": "garrote-academia",
+ "titulo": "Proposta Garrote Academia",
+ "cliente": "Garrote Academia",
+ "logo": "data:image/png;base64,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",
+ "validadeDias": 15,
+ "whatsapp": "",
+ "instagram": "@landora.ag",
+ "termos": [
+  "Valor total de implantação: R$ 10.990,00, com assinatura mensal de R$ 269,00 (plano Elite, com todos os módulos). Os módulos do plano Essential somam R$ 6.890,00 + R$ 189,00/mês e os do Standard, R$ 3.490,00 + R$ 129,00/mês.",
+  "Pagamento da implantação (sugestão): 20% no fechamento do contrato, mediante assinaturas; 40% na entrega dos modelos de teste; 40% na entrega do modelo final e implantação completa.",
+  "A assinatura mensal é cobrada somente a partir da entrega completa do projeto.",
+  "O desenvolvimento de novas ferramentas simples está incluso na assinatura do plano Elite. Ferramentas complexas, como telas inéditas, programas de fidelidade e integrações fora do escopo contratado, têm custo à parte, com orçamento e condições de pagamento negociados no momento.",
+  "O cronograma de desenvolvimento se dá mediante a aprovação formal desta proposta, assinatura do contrato e confirmação do pagamento da entrada.",
+  "Módulos guardados em “Depois” não fazem parte deste contrato e podem ser contratados mais adiante, com os valores desta proposta durante a validade."
+ ],
+ "modulos": [
+  {
+   "id": "vitrine-simples",
+   "categoria": "Site",
+   "icone": "globe",
+   "nome": "Vitrine (site de apresentação) — simples",
+   "desc": "Página inicial da Garrote com modalidades, equipamentos, localização e botão para a área do aluno.",
+   "detalhes": "Inclui: apresentação da academia, modalidades (musculação, boxe e dança), equipamentos Cimerian, endereço/mapa, Instagram e botão \"Já sou aluno\" que leva ao login. Visual premium escuro, rápido e responsivo.",
+   "imagens": [],
+   "preco": 700,
+   "mensal": 0
+  },
+  {
+   "id": "mobile-pwa",
+   "categoria": "Site",
+   "icone": "mobile",
+   "nome": "Versão para celular (app instalável)",
+   "desc": "O sistema funciona como app no celular, com ícone na tela inicial e carregamento rápido.",
+   "detalhes": "Instalável (PWA), com cache no aparelho: demora só na primeira abertura e as telas seguintes carregam do próprio celular, reduzindo o consumo de dados e de leituras do servidor.",
+   "imagens": [],
+   "preco": 450,
+   "mensal": 0
+  },
+  {
+   "id": "usuario-treinador",
+   "categoria": "Gestão",
+   "icone": "users",
+   "nome": "Usuário do Treinador",
+   "desc": "Painel do treinador: alunos, treinos, exercícios, categorias e acompanhamento.",
+   "detalhes": "Cadastro e acompanhamento dos alunos, biblioteca de exercícios com categorias/subcategorias, busca avançada, histórico e permissões por perfil. Cada treinador vê o que é dele.",
+   "imagens": [],
+   "preco": 650,
+   "mensal": 0
+  },
+  {
+   "id": "usuario-dono",
+   "categoria": "Gestão",
+   "icone": "shield",
+   "nome": "Usuário do Dono",
+   "desc": "Visão completa da academia para o proprietário, com controle de treinadores, alunos e configurações.",
+   "detalhes": "Painel exclusivo do dono: gestão de equipe, alunos, modalidades, planos e permissões, com acesso protegido e regras de segurança no banco de dados.",
+   "imagens": [],
+   "preco": 500,
+   "mensal": 0
+  },
+  {
+   "id": "criacao-treinos",
+   "categoria": "App do aluno",
+   "icone": "dashboard",
+   "nome": "Criação de treinos",
+   "desc": "Montagem de treinos por dia com séries, repetições, carga e técnicas avançadas.",
+   "detalhes": "Treinos por dia da semana, com biset, triset, dropset e outras técnicas, cardio dentro do treino, observações por exercício e organização por categoria muscular.",
+   "imagens": [],
+   "preco": 700,
+   "mensal": 0
+  },
+  {
+   "id": "agendamento-aulas",
+   "categoria": "Gestão",
+   "icone": "calendar",
+   "nome": "Agendamento de aulas e modalidades",
+   "desc": "Horários das modalidades por dia, com o professor de cada turma.",
+   "detalhes": "Grade de modalidades por horário e dia, professor responsável por turma, visualização no site e no app (celular e computador) e aviso de aulas.",
+   "imagens": [],
+   "preco": 490,
+   "mensal": 0
+  },
+  {
+   "id": "vitrine-completa",
+   "categoria": "Site",
+   "icone": "star",
+   "nome": "Vitrine completa (upgrade)",
+   "desc": "Galeria, depoimentos, resultados, estrutura por andar e chamadas de conversão.",
+   "detalhes": "Evolui a vitrine simples: seções de resultados e depoimentos de alunos, tour da estrutura (térreo, 2º andar e prédio), equipamentos Cimerian em destaque, planos e botões de contato para converter visitantes em alunos.",
+   "imagens": [],
+   "preco": 600,
+   "mensal": 0
+  },
+  {
+   "id": "usuario-aluno",
+   "categoria": "App do aluno",
+   "icone": "users",
+   "nome": "Usuário do Aluno",
+   "desc": "Área do aluno com login, treino do dia, evolução e dados pessoais.",
+   "detalhes": "Login individual, tela inicial com atalhos, treino da semana, perfil, notificações e acesso ao que o treinador liberou para ele.",
+   "imagens": [],
+   "preco": 700,
+   "mensal": 0
+  },
+  {
+   "id": "treino-no-site",
+   "categoria": "App do aluno",
+   "icone": "zap",
+   "nome": "Realização de treinos pelo site",
+   "desc": "O aluno executa o treino no celular, registra cargas e acompanha o histórico.",
+   "detalhes": "Execução do treino com cronômetro, carga anterior à vista (dados do último treino primeiro), resumo do treino carregado só ao entrar, histórico sob demanda (botão \"Histórico\"), zoom nos blocos e check-in da presença.",
+   "imagens": [],
+   "preco": 800,
+   "mensal": 0
+  },
+  {
+   "id": "dashboards-dono",
+   "categoria": "Gestão",
+   "icone": "chart",
+   "nome": "Dashboards interativos do Dono",
+   "desc": "Painéis e gráficos de frequência, alunos, receita e desempenho em tempo quase real.",
+   "detalhes": "Tela inicial do dono com indicadores, gráficos interativos de 30/90 dias, frequência por dia e horário, ranking e comparativos. Dados carregados sob demanda para economizar leituras.",
+   "imagens": [],
+   "preco": 650,
+   "mensal": 0
+  },
+  {
+   "id": "financeiro",
+   "categoria": "Gestão",
+   "icone": "card",
+   "nome": "Financeiro",
+   "desc": "Planos, mensalidades, plano família e controle de pagamentos.",
+   "detalhes": "Cadastro de planos definidos pelo dono, mensalidades por aluno, plano família que renova o grupo todo, treinadores externos com mensalidade, status de pagamento e visão de recebimentos.",
+   "imagens": [],
+   "preco": 650,
+   "mensal": 0
+  },
+  {
+   "id": "dieta-macros",
+   "categoria": "Nutrição",
+   "icone": "chart",
+   "nome": "Dieta e calculadora de macronutrientes",
+   "desc": "Área de dieta do treinador, com refeições por horário e cálculo de calorias e macros.",
+   "detalhes": "Base oficial TACO (4ª edição) com 580 alimentos, busca por grupo/tipo/preparo, dietas por horário, calculadora com TMB (Mifflin-St Jeor), gasto diário e saldo calórico, e \"Minha dieta\" na tela do aluno.",
+   "imagens": [],
+   "preco": 1100,
+   "mensal": 0
+  },
+  {
+   "id": "videos-como-fazer",
+   "categoria": "App do aluno",
+   "icone": "page",
+   "nome": "Vídeos \"como fazer\" com os personais da Garrote",
+   "desc": "Vídeos curtos gravados com os próprios personais, explicando a execução de cada exercício.",
+   "detalhes": "Inclui a integração dos vídeos ao cadastro de exercícios, exibidos ao aluno na hora do treino. A gravação é feita com os personais da Garrote (agenda a combinar).",
+   "imagens": [],
+   "preco": 600,
+   "mensal": 0
+  },
+  {
+   "id": "chat-ia",
+   "categoria": "App do aluno",
+   "icone": "chat",
+   "nome": "Chat com IA para dúvidas de treino",
+   "desc": "Assistente de inteligência artificial para tirar dúvidas de treino 24 horas por dia.",
+   "detalhes": "Chat dentro do app do aluno, com limites de uso e regras definidas pela academia para manter respostas seguras e dentro do contexto de treino.",
+   "imagens": [],
+   "preco": 700,
+   "mensal": 0
+  },
+  {
+   "id": "boneco-3d",
+   "categoria": "App do aluno",
+   "icone": "star",
+   "nome": "Mapa muscular (boneco) por exercício",
+   "desc": "Imagem do corpo (frente e costas) destacando os músculos atingidos em cada exercício.",
+   "detalhes": "Mapa anatômico em SVG, personalizável ao criar o exercício, no estilo dos adesivos das máquinas da academia.",
+   "imagens": [],
+   "preco": 700,
+   "mensal": 0
+  },
+  {
+   "id": "checkout",
+   "categoria": "Vendas",
+   "icone": "card",
+   "nome": "Checkout integrado (Pix e cartão)",
+   "desc": "Pagamento da assinatura direto no site, com confirmação automática no sistema.",
+   "detalhes": "Integração com Mercado Pago (Pix e cartão), baixa automática da mensalidade, limites de requisição contra robôs e camadas de segurança contra acessos indevidos.",
+   "imagens": [],
+   "preco": 600,
+   "mensal": 0
+  },
+  {
+   "id": "loja-produtos",
+   "categoria": "Vendas",
+   "icone": "cart",
+   "nome": "Vitrine de produtos e pedidos da recepção",
+   "desc": "Loja de suplementos e marmitas com carrinho e aviso de pedido na recepção.",
+   "detalhes": "Catálogo com foto (upload), detalhes do produto, carrinho com animação, pop-up de novo pedido na recepção e, no painel do dono, controle de estoque e faturamento.",
+   "imagens": [],
+   "preco": 400,
+   "mensal": 0
+  },
+  {
+   "id": "hospedagem-suporte",
+   "categoria": "Manutenção",
+   "icone": "shield",
+   "nome": "Hospedagem, domínio próprio e suporte básico",
+   "desc": "Sistema no ar 24 horas, domínio próprio (ex.: garroteacademia.com.br) e suporte em horário comercial.",
+   "detalhes": "Assinatura base (Standard). Cobrada somente a partir da entrega completa do projeto.",
+   "imagens": [],
+   "preco": 0,
+   "mensal": 129
+  },
+  {
+   "id": "suporte-prioritario",
+   "categoria": "Manutenção",
+   "icone": "bell",
+   "nome": "Suporte prioritário (todos os dias, 10h às 20h)",
+   "desc": "Atendimento prioritário todos os dias, das 10h às 20h.",
+   "detalhes": "Acréscimo de assinatura do plano Essential. Cobrada somente a partir da entrega completa do projeto.",
+   "imagens": [],
+   "preco": 0,
+   "mensal": 60
+  },
+  {
+   "id": "suporte-elite",
+   "categoria": "Manutenção",
+   "icone": "zap",
+   "nome": "Suporte prioritário 08h–00h e novas ferramentas simples",
+   "desc": "Atendimento prioritário todos os dias, das 8h à meia-noite, e desenvolvimento de novas ferramentas simples.",
+   "detalhes": "Acréscimo de assinatura do plano Elite. Ferramentas complexas (telas inéditas, programas de fidelidade, integrações fora do escopo) têm orçamento à parte.",
+   "imagens": [],
+   "preco": 0,
+   "mensal": 80
+  }
+ ],
+ "logoFundo": "branco",
+ "planos": [
+  {
+   "id": "standard",
+   "nome": "Standard",
+   "desc": "O essencial para começar: site, app e gestão de treinos e aulas.",
+   "destaque": false,
+   "preco": null,
+   "mensal": null,
+   "modulos": [
+    "vitrine-simples",
+    "mobile-pwa",
+    "usuario-treinador",
+    "usuario-dono",
+    "criacao-treinos",
+    "agendamento-aulas",
+    "hospedagem-suporte"
+   ]
+  },
+  {
+   "id": "essential",
+   "nome": "Essential",
+   "desc": "Operação completa: alunos, dashboards e financeiro.",
+   "destaque": true,
+   "preco": null,
+   "mensal": null,
+   "modulos": [
+    "vitrine-simples",
+    "mobile-pwa",
+    "usuario-treinador",
+    "usuario-dono",
+    "criacao-treinos",
+    "agendamento-aulas",
+    "vitrine-completa",
+    "usuario-aluno",
+    "treino-no-site",
+    "dashboards-dono",
+    "financeiro",
+    "hospedagem-suporte",
+    "suporte-prioritario"
+   ]
+  },
+  {
+   "id": "elite",
+   "nome": "Elite",
+   "desc": "Tudo incluso, com suporte elite.",
+   "destaque": false,
+   "preco": null,
+   "mensal": null,
+   "modulos": [
+    "vitrine-simples",
+    "mobile-pwa",
+    "usuario-treinador",
+    "usuario-dono",
+    "criacao-treinos",
+    "agendamento-aulas",
+    "vitrine-completa",
+    "usuario-aluno",
+    "treino-no-site",
+    "dashboards-dono",
+    "financeiro",
+    "dieta-macros",
+    "videos-como-fazer",
+    "chat-ia",
+    "boneco-3d",
+    "checkout",
+    "loja-produtos",
+    "hospedagem-suporte",
+    "suporte-prioritario",
+    "suporte-elite"
+   ]
+  }
+ ]
+}

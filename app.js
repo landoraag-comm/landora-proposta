@@ -37,7 +37,7 @@
 
   /* ---------- Estado ---------- */
   let KEY = "";
-  const state = { now: [], later: [], filtro: "todos", assinado: null };
+  const state = { now: [], later: [], filtro: "todos", assinado: null, plano: null };
   const prev = { now: [], later: [] };
 
   function load() {
@@ -46,15 +46,35 @@
       if (raw) {
         state.now = (raw.now || []).filter((id) => byId[id]);
         state.later = (raw.later || []).filter((id) => byId[id] && !state.now.includes(id));
+        state.plano = raw.plano || null;
       }
     } catch (e) { /* sem storage: segue só em memória */ }
   }
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ now: state.now, later: state.later })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ now: state.now, later: state.later, plano: state.plano })); } catch (e) {}
   }
 
   const sum = (ids) =>
     ids.reduce((a, id) => ({ unico: a.unico + byId[id].preco, mensal: a.mensal + byId[id].mensal }), { unico: 0, mensal: 0 });
+
+  /* ---------- Planos ---------- */
+  const planById = () => Object.fromEntries((D.planos || []).map((p) => [p.id, p]));
+  const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+  function planoAtivo() {
+    const p = state.plano && planById()[state.plano];
+    return p && sameSet(state.now, p.modulos) ? p : null;
+  }
+  const planoPreco = (p) => {
+    const s = sum(p.modulos);
+    return { unico: p.preco == null ? s.unico : p.preco, mensal: p.mensal == null ? s.mensal : p.mensal, baseUnico: s.unico, baseMensal: s.mensal };
+  };
+  // total do contrato: se um plano está selecionado (e os módulos batem com ele), vale o valor do plano
+  function sumNow() {
+    const base = sum(state.now), p = planoAtivo();
+    if (!p) return { ...base, base, plano: null };
+    const pp = planoPreco(p);
+    return { unico: pp.unico, mensal: pp.mensal, base, plano: p };
+  }
 
   /* ---------- Animação de números ---------- */
   function tween(el, to, fmt) {
@@ -213,6 +233,69 @@
     });
   });
 
+  /* ---------- Planos (cartões) ---------- */
+  function renderPlanos() {
+    const box = $("#planos-grid"), sec = $("#planos");
+    const ps = D.planos || [];
+    sec.hidden = !ps.length;
+    box.innerHTML = "";
+    if (!ps.length) return;
+    ps.forEach((p, i) => {
+      const pp = planoPreco(p);
+      const eco = pp.baseUnico - pp.unico;
+      const nomes = p.modulos.map((id) => byId[id].nome);
+      const el = document.createElement("article");
+      el.className = "plano" + (p.destaque ? " destaque" : "");
+      el.dataset.id = p.id;
+      el.style.setProperty("--i", i);
+      el.innerHTML = `
+        ${p.destaque ? '<span class="plano-tag">Mais escolhido</span>' : ""}
+        <h3></h3>
+        <p class="plano-desc"></p>
+        <div class="plano-price">
+          ${eco > 0 ? `<s>${brl(pp.baseUnico)}</s>` : ""}
+          <strong>${pp.unico ? brl(pp.unico) : brl(pp.mensal)}</strong><span>${pp.unico ? "único" : "/mês"}</span>
+          ${pp.unico && pp.mensal ? `<span class="plano-mensal">+ ${brl(pp.mensal)}/mês</span>` : ""}
+        </div>
+        ${eco > 0 ? `<p class="plano-eco">Economia de ${brl(eco)} no plano</p>` : ""}
+        <ul class="plano-list">${nomes.slice(0, 6).map((n) => `<li></li>`).join("")}${nomes.length > 6 ? `<li class="mais">e mais ${nomes.length - 6} módulos</li>` : ""}</ul>
+        <button type="button" class="btn btn-primary plano-btn"></button>`;
+      $("h3", el).textContent = p.nome;
+      $(".plano-desc", el).textContent = p.desc;
+      el.querySelectorAll(".plano-list li:not(.mais)").forEach((li, k) => { li.textContent = nomes[k]; });
+      $(".plano-btn", el).addEventListener("click", () => escolherPlano(p.id));
+      box.appendChild(el);
+    });
+    syncPlanos();
+  }
+  function syncPlanos() {
+    const at = planoAtivo();
+    $$("#planos-grid .plano").forEach((el) => {
+      const on = !!at && at.id === el.dataset.id;
+      el.classList.toggle("on", on);
+      const b = $(".plano-btn", el);
+      b.textContent = on ? "Plano escolhido ✓" : "Escolher este plano";
+      b.setAttribute("aria-pressed", String(on));
+    });
+    const line = $("#tn-plano");
+    if (line) { line.hidden = !at; if (at) line.textContent = "Plano " + at.nome; }
+  }
+  function escolherPlano(id) {
+    const p = planById()[id];
+    if (!p) return;
+    if (planoAtivo() && planoAtivo().id === id) {
+      state.now = []; state.plano = null; toast("Plano removido");
+    } else {
+      state.now = p.modulos.slice();
+      state.later = state.later.filter((x) => !state.now.includes(x));
+      state.plano = id;
+      toast("Plano " + p.nome + " selecionado");
+    }
+    state.assinado = null;
+    save();
+    update();
+  }
+
   /* ---------- Detalhes do módulo (modal) ---------- */
   let detId = null;
   function openDetails(id) {
@@ -294,7 +377,7 @@
     prev.now = state.now.slice();
     prev.later = state.later.slice();
 
-    const tn = sum(state.now), tl = sum(state.later);
+    const tn = sumNow(), tl = sum(state.later);
     tween($("#tn-unico"), tn.unico, brl);
     tween($("#tn-mensal"), tn.mensal, brl);
     tween($("#tl-unico"), tl.unico, brl);
@@ -341,12 +424,25 @@
       tr.children[2].textContent = m.mensal ? brl(m.mensal) : "—";
       rows.appendChild(tr);
     });
-    const t = sum(state.now);
+    const t = sumNow();
+    if (t.plano) {
+      const du = t.unico - t.base.unico, dm = t.mensal - t.base.mensal;
+      if (du || dm) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td></td><td class='num'></td><td class='num'></td>";
+        tr.children[0].textContent = "Plano " + t.plano.nome + " — condição especial";
+        tr.children[1].textContent = du ? brl(du) : "—";
+        tr.children[2].textContent = dm ? brl(dm) : "—";
+        rows.appendChild(tr);
+      }
+    }
     $("#resumo-total").innerHTML = `<tr><td>Total</td><td class="num">${brl(t.unico)}</td><td class="num">${brl(t.mensal)}</td></tr>`;
   }
 
   function update() {
+    if (state.plano && !planoAtivo()) { state.plano = null; save(); }
     syncCards();
+    syncPlanos();
     syncDet();
     renderCart();
     renderContrato();
@@ -407,8 +503,9 @@
   }
 
   function resumoTexto(a) {
-    const t = sum(state.now), tl = sum(state.later);
+    const t = sumNow(), tl = sum(state.later);
     const linhas = state.now.map((id) => `• ${byId[id].nome} — ${byId[id].preco ? brl(byId[id].preco) : ""}${byId[id].mensal ? (byId[id].preco ? " + " : "") + brl(byId[id].mensal) + "/mês" : ""}`);
+    if (t.plano) linhas.unshift(`Plano ${t.plano.nome}`);
     let txt = `*Contrato Landora* — ${a.protocolo}\nCliente: ${cliente}\nAssinado por: ${a.nome} (${a.doc})\nData: ${a.data}\n\n*Contrato (agora)*\n${linhas.join("\n")}\n\nTotal: ${brl(t.unico)}${t.mensal ? " + " + brl(t.mensal) + "/mês" : ""}`;
     if (state.later.length) {
       txt += `\n\n*Reservado para depois*\n${state.later.map((id) => "• " + byId[id].nome).join("\n")}\nEstimativa: ${brl(tl.unico)}${tl.mensal ? " + " + brl(tl.mensal) + "/mês" : ""}`;
@@ -417,14 +514,14 @@
   }
 
   function buildPrint(a) {
-    const t = sum(state.now), tl = sum(state.later);
+    const t = sumNow(), tl = sum(state.later);
     const row = (id) => `<tr><td>${esc(byId[id].nome)}</td><td class="num">${byId[id].preco ? brl(byId[id].preco) : "—"}</td><td class="num">${byId[id].mensal ? brl(byId[id].mensal) : "—"}</td></tr>`;
     $("#print-sheet").innerHTML = `
       <h1>Contrato Landora</h1>
-      <p class="meta">${D.logo ? `<img alt="" src="${esc(D.logo)}" style="max-height:48px;max-width:180px;display:block;margin-bottom:8px">` : ""}Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
+      <p class="meta">${D.logo ? `<img alt="" src="${esc(D.logo)}" style="max-height:48px;max-width:180px;display:block;margin-bottom:8px;${D.logoFundo === "transparente" ? "background:#0A0A0A;padding:6px 10px;border-radius:8px" : ""}">` : ""}Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
       <h2>Módulos contratados</h2>
       <table><thead><tr><th>Módulo</th><th class="num">Único</th><th class="num">Mensal</th></tr></thead>
-      <tbody>${state.now.map(row).join("")}</tbody>
+      <tbody>${state.now.map(row).join("")}${t.plano && (t.unico !== t.base.unico || t.mensal !== t.base.mensal) ? `<tr><td>Plano ${esc(t.plano.nome)} — condição especial</td><td class="num">${t.unico !== t.base.unico ? brl(t.unico - t.base.unico) : "—"}</td><td class="num">${t.mensal !== t.base.mensal ? brl(t.mensal - t.base.mensal) : "—"}</td></tr>` : ""}</tbody>
       <tfoot><tr><th>Total</th><th class="num">${brl(t.unico)}</th><th class="num">${brl(t.mensal)}</th></tr></tfoot></table>
       ${state.later.length ? `<h2>Reservado para depois (fora do contrato)</h2>
       <table><tbody>${state.later.map(row).join("")}</tbody>
@@ -457,10 +554,11 @@
       const { getFirestore, collection, addDoc, serverTimestamp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
       const app = initializeApp(cfg);
       const db = getFirestore(app);
-      const t = sum(state.now), tl = sum(state.later);
+      const t = sumNow(), tl = sum(state.later);
       await addDoc(collection(db, "propostas"), {
         protocolo: a.protocolo,
         modelo: slug || null,
+        plano: sumNow().plano ? sumNow().plano.nome : null,
         cliente,
         nome: a.nome,
         documento: a.doc,
@@ -535,7 +633,7 @@
   });
   $("#limpar").addEventListener("click", () => {
     if (!state.now.length && !state.later.length) return;
-    state.now = []; state.later = [];
+    state.now = []; state.later = []; state.plano = null;
     state.assinado = null;
     save();
     update();
@@ -623,6 +721,13 @@
       ...base,
       cliente: m.cliente || base.cliente,
       logo: typeof m.logo === "string" && m.logo.startsWith("data:image/") ? m.logo : "",
+      logoFundo: m.logoFundo === "transparente" ? "transparente" : "branco",
+      planos: (m.planos || []).map((p) => ({
+        id: String(p.id || ""), nome: String(p.nome || "Plano"), desc: String(p.desc || ""), destaque: !!p.destaque,
+        preco: p.preco == null || p.preco === "" ? null : Math.max(0, +p.preco || 0),
+        mensal: p.mensal == null || p.mensal === "" ? null : Math.max(0, +p.mensal || 0),
+        modulos: (p.modulos || []).filter((id) => (m.modulos || []).some((x) => x.id === id)),
+      })).filter((p) => p.id && p.modulos.length),
       validadeDias: +m.validadeDias || base.validadeDias,
       whatsapp: (m.whatsapp || "").replace(/\D/g, ""),
       instagram: m.instagram || base.instagram,
@@ -671,12 +776,14 @@
     if (D.logo) {
       const chip = $("#client-chip");
       $("#client-logo", chip).src = D.logo;
+      if (D.logoFundo === "transparente") { $(".logo-wrap", chip).classList.add("transp"); $("#parte-logo").classList.add("transp"); }
       $("#client-name", chip).textContent = cliente;
       chip.hidden = false;
       $(".badge").hidden = true;
       const pl = $("#parte-logo");
       pl.hidden = false; pl.querySelector("img").src = D.logo;
       const fl = $("#ft-logo"); fl.hidden = false; fl.src = D.logo;
+      if (D.logoFundo === "transparente") { fl.style.background = "transparent"; fl.style.padding = "0"; }
     }
     $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
     $("#validade-side").textContent = "Válida por " + D.validadeDias + " dias";
@@ -695,6 +802,11 @@
     load();
     buildMarquee();
     renderFiltros();
+    renderPlanos();
+    if ((D.planos || []).length) {
+      const link = (cls) => { const l = document.createElement("a"); l.href = "#planos"; l.textContent = "Planos"; const ref = document.querySelector(cls + ' a[href="#vitrine"]'); ref.parentNode.insertBefore(l, ref); if (cls === "#side") l.insertAdjacentHTML("afterbegin", "<i>★</i>"); };
+      link(".nav"); link("#side");
+    }
     buildGrid();
     resetPad();
     update();

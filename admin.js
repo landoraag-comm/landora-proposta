@@ -85,16 +85,22 @@
       try {
         const j = JSON.parse(await f.text());
         if (!j || !Array.isArray(j.modulos) || !j.modulos.length) throw new Error("sem módulos");
-        const b = window.PROPOSTA, usados = new Set();
+        const b = window.PROPOSTA, usados = new Set(), idmap = {};
         const p = {
           slug: slugify(j.slug || j.titulo || j.cliente || ""), titulo: String(j.titulo || j.cliente || "").slice(0, 120), cliente: String(j.cliente || "").slice(0, 80),
           logo: typeof j.logo === "string" && j.logo.startsWith("data:image/") ? j.logo : "", validadeDias: Math.max(1, parseInt(j.validadeDias, 10) || b.validadeDias || 15),
           whatsapp: String(j.whatsapp || "").replace(/\D/g, ""), instagram: String(j.instagram || b.instagram || ""),
+          logoFundo: j.logoFundo === "transparente" ? "transparente" : "branco",
           termos: Array.isArray(j.termos) && j.termos.length ? j.termos.map(String) : b.termos.slice(),
-          modulos: j.modulos.map((m, i) => { let id = slugify(m.id || m.nome || "modulo") || "modulo"; while (usados.has(id)) id += "-" + uid().slice(0, 2); usados.add(id);
+          modulos: j.modulos.map((m, i) => { let id = slugify(m.id || m.nome || "modulo") || "modulo"; while (usados.has(id)) id += "-" + uid().slice(0, 2); usados.add(id); idmap[String(m.id || m.nome)] = id;
             return { id, categoria: String(m.categoria || ""), icone: ICONES.includes(m.icone) ? m.icone : "page", nome: String(m.nome || "Módulo"), desc: String(m.desc || ""), detalhes: String(m.detalhes || ""),
               imagens: Array.isArray(m.imagens) ? m.imagens.filter((u) => typeof u === "string" && u.startsWith("data:image/")).slice(0, 4) : [], preco: Math.max(0, +m.preco || 0), mensal: Math.max(0, +m.mensal || 0) }; }),
         };
+        p.planos = (Array.isArray(j.planos) ? j.planos : []).map((pl) => ({
+          id: slugify(pl.id || pl.nome || "plano") || "plano", nome: String(pl.nome || "Plano"), desc: String(pl.desc || ""), destaque: !!pl.destaque,
+          preco: pl.preco == null || pl.preco === "" ? null : Math.max(0, +pl.preco || 0), mensal: pl.mensal == null || pl.mensal === "" ? null : Math.max(0, +pl.mensal || 0),
+          modulos: (pl.modulos || []).map((x) => idmap[String(x)]).filter(Boolean),
+        })).filter((pl) => pl.modulos.length);
         abrir(p, true); toast("Proposta importada: confira e clique em Salvar");
       } catch (err) { toast("Arquivo inválido: " + (err.message || "JSON")); }
     };
@@ -123,7 +129,7 @@
   /* ---------- Editor ---------- */
   function novaProposta() {
     const b = window.PROPOSTA;
-    return { slug: "", titulo: "", cliente: "", logo: "", validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
+    return { slug: "", titulo: "", cliente: "", logo: "", logoFundo: "branco", planos: [], validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
   }
 
   function abrir(p, novo = true) {
@@ -154,14 +160,16 @@
         </div>
         <div class="field"><label>Logo do cliente</label>
           <div class="logo-up">
-            <div class="logo-prev" id="logo-prev">${p.logo ? `<img alt="" src="${esc(p.logo)}">` : "<span>sem logo</span>"}</div>
+            <div class="logo-prev ${p.logoFundo === "transparente" ? "dark" : ""}" id="logo-prev">${p.logo ? `<img alt="" src="${esc(p.logo)}">` : "<span>sem logo</span>"}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button type="button" class="btn btn-ghost btn-sm" id="logo-btn">Enviar logo</button>
               <button type="button" class="btn btn-ghost btn-sm" id="logo-del" ${p.logo ? "" : "hidden"}>Remover</button>
             </div>
             <input type="file" id="logo-file" accept="image/*" hidden>
           </div>
-          <small>Aparece na proposta junto ao nome do cliente. Prefira PNG com fundo transparente.</small>
+          <div class="field" style="margin:10px 0 0;max-width:340px"><label for="f-logofundo">Fundo atrás da logo</label>
+            <select id="f-logofundo"><option value="branco" ${p.logoFundo !== "transparente" ? "selected" : ""}>Fundo branco (para logo escura)</option><option value="transparente" ${p.logoFundo === "transparente" ? "selected" : ""}>Sem fundo (logo transparente/clara)</option></select></div>
+          <small>PNG com fundo transparente funciona. Ao enviar, o painel escolhe o fundo sozinho; você pode trocar.</small>
         </div>
         <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" value="${esc(p.instagram)}" placeholder="@landora.ag"></div>
         <div class="field" style="margin:0"><label for="f-termos">Condições (uma por linha)</label><textarea id="f-termos" rows="4">${esc((p.termos || []).join("\n"))}</textarea></div>
@@ -186,6 +194,24 @@
               <button class="mini-b del" data-a="del" title="Remover" aria-label="Remover">×</button>
             </div>
           </div>`).join("") : `<div class="panel empty">Nenhum módulo. Cadastre um ou importe os exemplos.</div>`}
+      </div>
+
+      <div class="sec-h"><div><h2>Planos <small style="color:var(--muted);font-weight:400">(${(p.planos || []).length})</small></h2><p class="sub" style="margin:4px 0 0;font-size:13px">Pacotes com valor próprio que já selecionam módulos para o cliente.</p></div>
+        <button class="btn btn-primary btn-sm" id="addplano">+ Novo plano</button>
+      </div>
+      <div class="mods" id="planos">
+        ${(p.planos || []).length ? p.planos.map((pl, i) => { const s = somaMods(p, pl.modulos); const pu = pl.preco == null ? s.u : pl.preco, pm = pl.mensal == null ? s.m : pl.mensal; return `
+          <div class="mrow plano-row" data-i="${i}">
+            <div class="thumb">${pl.destaque ? "★" : ""}</div>
+            <div><b>${esc(pl.nome)}</b><small>${pl.modulos.length} módulos${pl.preco != null || pl.mensal != null ? " · valor especial" : " · soma automática"}</small></div>
+            <div class="price-s">${pu > 0 ? brl(pu) : ""}${pu > 0 && pm > 0 ? "<br>" : ""}${pm > 0 ? "+ " + brl(pm) + "/mês" : ""}</div>
+            <div class="acts">
+              <button class="mini-b" data-a="up" aria-label="Subir">↑</button>
+              <button class="mini-b" data-a="down" aria-label="Descer">↓</button>
+              <button class="mini-b" data-a="edit" aria-label="Editar">✎</button>
+              <button class="mini-b del" data-a="del" aria-label="Remover">×</button>
+            </div>
+          </div>`; }).join("") : `<div class="panel empty">Nenhum plano. Sem planos, o cliente escolhe só módulos avulsos.</div>`}
       </div>`;
     bindSair();
     $("#voltar").onclick = () => { if (!confirm("Sair sem salvar as alterações?")) return; viewLista(); };
@@ -209,7 +235,7 @@
       lerForm();
       const i = +row.dataset.i;
       if (a === "edit") drawerModulo(i);
-      if (a === "del" && confirm("Remover este módulo?")) { p.modulos.splice(i, 1); viewEditor(); }
+      if (a === "del" && confirm("Remover este módulo?")) { const rid = p.modulos[i].id; p.modulos.splice(i, 1); (p.planos || []).forEach((pl) => { pl.modulos = pl.modulos.filter((x) => x !== rid); }); p.planos = (p.planos || []).filter((pl) => pl.modulos.length); viewEditor(); }
       if (a === "up" && i > 0) { [p.modulos[i - 1], p.modulos[i]] = [p.modulos[i], p.modulos[i - 1]]; viewEditor(); }
       if (a === "down" && i < p.modulos.length - 1) { [p.modulos[i + 1], p.modulos[i]] = [p.modulos[i], p.modulos[i + 1]]; viewEditor(); }
     };
@@ -219,10 +245,27 @@
     };
     $("#logo-btn").onclick = () => $("#logo-file").click();
     $("#logo-del").onclick = () => { p.logo = ""; pintaLogo(); };
+    $("#f-logofundo").onchange = (e) => { p.logoFundo = e.target.value; $("#logo-prev").classList.toggle("dark", p.logoFundo === "transparente"); };
     $("#logo-file").onchange = async (e) => {
       const f = e.target.files[0]; e.target.value = "";
       if (!f) return;
-      try { p.logo = await comprimirLogo(f); pintaLogo(); } catch (_) { toast("Não consegui ler a imagem"); }
+      try {
+        p.logo = await comprimirLogo(f);
+        p.logoFundo = await logoEhClara(p.logo) ? "transparente" : "branco";
+        $("#f-logofundo").value = p.logoFundo; $("#logo-prev").classList.toggle("dark", p.logoFundo === "transparente");
+        pintaLogo();
+      } catch (_) { toast("Não consegui ler a imagem"); }
+    };
+    $("#addplano").onclick = () => { lerForm(); drawerPlano(null); };
+    $("#planos").onclick = (e) => {
+      const a = e.target.dataset.a, row = e.target.closest(".plano-row");
+      if (!a || !row) return;
+      lerForm();
+      const i = +row.dataset.i, L = p.planos;
+      if (a === "edit") drawerPlano(i);
+      if (a === "del" && confirm("Remover este plano?")) { L.splice(i, 1); viewEditor(); }
+      if (a === "up" && i > 0) { [L[i - 1], L[i]] = [L[i], L[i - 1]]; viewEditor(); }
+      if (a === "down" && i < L.length - 1) { [L[i + 1], L[i]] = [L[i], L[i + 1]]; viewEditor(); }
     };
     $("#salvar").onclick = salvar;
     const cl = $("#copiar-link");
@@ -248,6 +291,8 @@
     if (!p.slug) return toast("Informe o endereço (slug)");
     if (RESERVADOS.includes(p.slug)) return toast("Esse endereço é reservado, escolha outro");
     if (!p.modulos.length) return toast("Cadastre ao menos um módulo");
+    const ids = new Set(p.modulos.map((m) => m.id));
+    p.planos = (p.planos || []).map((pl) => ({ ...pl, modulos: pl.modulos.filter((x) => ids.has(x)) })).filter((pl) => pl.modulos.length);
     const btn = $("#salvar"); btn.disabled = true; btn.textContent = "Salvando…";
     try {
       if (ed.novo) {
@@ -328,6 +373,70 @@
       fechar(); viewEditor();
     };
     $("#m-nome", d).focus();
+  }
+
+  const somaMods = (p, ids) => (ids || []).reduce((a, id) => { const m = p.modulos.find((x) => x.id === id); return m ? { u: a.u + (+m.preco || 0), m: a.m + (+m.mensal || 0) } : a; }, { u: 0, m: 0 });
+
+  /* ---------- Plano (gaveta) ---------- */
+  function drawerPlano(i) {
+    const p = ed.p; p.planos = p.planos || [];
+    const pl = i == null ? { id: "", nome: "", desc: "", destaque: false, preco: null, mensal: null, modulos: [] } : JSON.parse(JSON.stringify(p.planos[i]));
+    const d = document.createElement("div");
+    d.className = "drawer";
+    d.innerHTML = `
+      <div class="drawer-in" role="dialog" aria-modal="true" aria-label="Plano">
+        <h2 style="margin-bottom:18px">${i == null ? "Novo plano" : "Editar plano"}</h2>
+        <div class="field"><label for="pl-nome">Nome do plano</label><input id="pl-nome" value="${esc(pl.nome)}" placeholder="Ex.: Essential"></div>
+        <div class="field"><label for="pl-desc">Descrição curta</label><textarea id="pl-desc" rows="2">${esc(pl.desc)}</textarea></div>
+        <label class="check"><input type="checkbox" id="pl-dest" ${pl.destaque ? "checked" : ""}> Destacar como “Mais escolhido”</label>
+        <div class="field"><label>Módulos incluídos</label>
+          <div class="pick" id="pl-pick">${p.modulos.length ? p.modulos.map((m) => `<label class="pickrow"><input type="checkbox" value="${esc(m.id)}" ${pl.modulos.includes(m.id) ? "checked" : ""}><span>${esc(m.nome)}</span><small>${m.preco > 0 ? brl(m.preco) : ""}${m.mensal > 0 ? (m.preco > 0 ? " + " : "") + brl(m.mensal) + "/mês" : ""}</small></label>`).join("") : "<p class='empty'>Cadastre os módulos primeiro.</p>"}</div>
+          <small id="pl-soma"></small>
+        </div>
+        <div class="cols">
+          <div class="field"><label for="pl-preco">Valor único do plano (R$)</label><input id="pl-preco" type="number" min="0" step="0.01" value="${pl.preco == null ? "" : pl.preco}" placeholder="vazio = soma dos módulos"></div>
+          <div class="field"><label for="pl-mensal">Valor mensal do plano (R$)</label><input id="pl-mensal" type="number" min="0" step="0.01" value="${pl.mensal == null ? "" : pl.mensal}" placeholder="vazio = soma dos módulos"></div>
+        </div>
+        <small>Deixe vazio para usar a soma dos módulos. Preencha para dar um valor especial (ex.: pacote com desconto).</small>
+        <div class="drawer-foot"><button class="btn btn-ghost" id="pl-cancel">Cancelar</button><button class="btn btn-primary" id="pl-ok">Salvar plano</button></div>
+      </div>`;
+    document.body.appendChild(d);
+    const marcados = () => Array.from(d.querySelectorAll("#pl-pick input:checked")).map((x) => x.value);
+    const soma = () => { const s = somaMods(p, marcados()); $("#pl-soma", d).textContent = `Soma dos módulos marcados: ${brl(s.u)}${s.m ? " + " + brl(s.m) + "/mês" : ""} (${marcados().length} módulos)`; };
+    d.addEventListener("change", soma); soma();
+    const fechar = () => d.remove();
+    $("#pl-cancel", d).onclick = fechar;
+    d.addEventListener("mousedown", (e) => { if (e.target === d) fechar(); });
+    $("#pl-ok", d).onclick = () => {
+      const nome = $("#pl-nome", d).value.trim();
+      if (!nome) return toast("Informe o nome do plano");
+      const mods = marcados();
+      if (!mods.length) return toast("Marque ao menos um módulo");
+      const num = (id) => { const v = $(id, d).value.trim(); return v === "" ? null : Math.max(0, parseFloat(v) || 0); };
+      Object.assign(pl, { nome, desc: $("#pl-desc", d).value.trim(), destaque: $("#pl-dest", d).checked, modulos: mods, preco: num("#pl-preco"), mensal: num("#pl-mensal") });
+      if (!pl.id) pl.id = (slugify(nome) || "plano") + "-" + uid().slice(0, 3);
+      if (i == null) p.planos.push(pl); else p.planos[i] = pl;
+      fechar(); viewEditor();
+    };
+    $("#pl-nome", d).focus();
+  }
+
+  // decide se a logo é clara (precisa de fundo escuro) pela luminância média dos pixels visíveis
+  function logoEhClara(url) {
+    return new Promise((res) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas"); c.width = 64; c.height = 32;
+          const x = c.getContext("2d"); x.drawImage(img, 0, 0, 64, 32);
+          const d = x.getImageData(0, 0, 64, 32).data; let n = 0, l = 0;
+          for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 40) { n++; l += (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255; }
+          res(n > 0 && l / n > 0.6);
+        } catch (_) { res(false); }
+      };
+      img.onerror = () => res(false);
+      img.src = url;
+    });
   }
 
   // logo: mantém transparência (PNG), máx. 480x240; se ficar pesada, converte

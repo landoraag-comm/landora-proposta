@@ -53,3 +53,17 @@
 .logo-up{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .logo-prev{width:200px;height:80px;border-radius:14px;background:#fff;display:grid;place-items:center;overflow:hidden;color:#555;font-size:12px}
 .logo-prev img{max-width:90%;max-height:90%;object-fit:contain}
+
+.logo-prev.dark{background:#1F2937;color:#aaa}
+.check{flex-direction:row!important;align-items:center;gap:10px!important;margin-bottom:14px;color:var(--text)!important;font-size:14px!important}
+.pick{max-height:260px;overflow:auto;border:1px solid var(--line-2);border-radius:12px;padding:6px}
+.pickrow{flex-direction:row!important;align-items:center;gap:10px!important;padding:8px;border-radius:8px;cursor:pointer;color:var(--text)!important;font-size:14px!important}
+.pickrow:hover{background:rgba(255,255,255,.05)}
+.pickrow span{flex:1}.pickrow small{color:var(--muted)}
+.plano-row .thumb{font-size:18px;color:#0057FF}
+.field .pick .pickrow{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);padding:8px;margin:0}
+.pick .pickrow input{flex:none;width:auto;margin:0}
+.pick .pickrow span{flex:1;text-align:left}
+.pick .pickrow small{flex:none;white-space:nowrap}
+.field .check,label.check{display:flex;text-transform:none;letter-spacing:0}
+.check input{width:auto}
