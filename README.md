@@ -22,6 +22,7 @@ Site estático (HTML, CSS e JS puro), sem build.
 
 O endereço principal (`https://SEU-DOMINIO/`) abre o painel: login, criar proposta, cadastrar módulos, valores e imagens. O painel cria propostas novas usando este site como base: módulos, valores, categorias e até 4 imagens por módulo (aparecem no card e em "Ver detalhes").
 
+- **Importar proposta (.json):** na lista de propostas, o botão abre um arquivo `.json` (slug, titulo, cliente, logo, validadeDias, whatsapp, instagram, termos e modulos com id, categoria, icone, nome, desc, detalhes, preco e mensal) direto no editor; ela só é gravada ao clicar em *Salvar proposta*. Use para propostas prontas sem deixar dados de cliente no repositório público.
 - Cada proposta gera um link curto para o cliente: `https://SEU-DOMINIO/slug` (ex.: `https://proposta-landora.web.app/garrote-academia`). O Hosting reescreve qualquer caminho para o `proposta.html` (o modelo). Em modo demonstração local o link é `proposta.html?p=slug`.
 - Endereços reservados: admin, index, proposta, assets, styles, app, data, store, firebase-config.
 - Dados em `modelos/{slug}` e `modelos/{slug}/modulos/{id}` no Firestore.
