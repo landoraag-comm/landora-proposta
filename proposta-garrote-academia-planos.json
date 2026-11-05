@@ -23,7 +23,7 @@
    "desc": "Página inicial da Garrote com modalidades, equipamentos, localização e botão para a área do aluno.",
    "detalhes": "Inclui: apresentação da academia, modalidades (musculação, boxe e dança), equipamentos Cimerian, endereço/mapa, Instagram e botão \"Já sou aluno\" que leva ao login. Visual premium escuro, rápido e responsivo.",
    "imagens": [],
-   "preco": 400,
+   "preco": 410,
    "mensal": 0
   },
   {
@@ -34,7 +34,7 @@
    "desc": "O sistema funciona como app no celular, com ícone na tela inicial e carregamento rápido.",
    "detalhes": "Instalável (PWA), com cache no aparelho: demora só na primeira abertura e as telas seguintes carregam do próprio celular, reduzindo o consumo de dados e de leituras do servidor.",
    "imagens": [],
-   "preco": 1800,
+   "preco": 1540,
    "mensal": 0
   },
   {
@@ -45,7 +45,7 @@
    "desc": "Painel do treinador: alunos, treinos, exercícios, categorias e acompanhamento.",
    "detalhes": "Cadastro e acompanhamento dos alunos, biblioteca de exercícios com categorias/subcategorias, busca avançada, histórico e permissões por perfil. Cada treinador vê o que é dele.",
    "imagens": [],
-   "preco": 400,
+   "preco": 530,
    "mensal": 0
   },
   {
@@ -56,7 +56,7 @@
    "desc": "Visão completa da academia para o proprietário, com controle de treinadores, alunos e configurações.",
    "detalhes": "Painel exclusivo do dono: gestão de equipe, alunos, modalidades, planos e permissões, com acesso protegido e regras de segurança no banco de dados.",
    "imagens": [],
-   "preco": 300,
+   "preco": 240,
    "mensal": 0
   },
   {
@@ -67,7 +67,7 @@
    "desc": "Montagem de treinos por dia com séries, repetições, carga e técnicas avançadas.",
    "detalhes": "Treinos por dia da semana, com biset, triset, dropset e outras técnicas, cardio dentro do treino, observações por exercício e organização por categoria muscular.",
    "imagens": [],
-   "preco": 300,
+   "preco": 410,
    "mensal": 0
   },
   {
@@ -78,7 +78,7 @@
    "desc": "Horários das modalidades por dia, com o professor de cada turma.",
    "detalhes": "Grade de modalidades por horário e dia, professor responsável por turma, visualização no site e no app (celular e computador) e aviso de aulas.",
    "imagens": [],
-   "preco": 290,
+   "preco": 360,
    "mensal": 0
   },
   {
@@ -89,7 +89,7 @@
    "desc": "Galeria, depoimentos, resultados, estrutura por andar e chamadas de conversão.",
    "detalhes": "Evolui a vitrine simples: seções de resultados e depoimentos de alunos, tour da estrutura (térreo, 2º andar e prédio), equipamentos Cimerian em destaque, planos e botões de contato para converter visitantes em alunos.",
    "imagens": [],
-   "preco": 450,
+   "preco": 550,
    "mensal": 0
   },
   {
@@ -100,7 +100,7 @@
    "desc": "Área do aluno com login, treino do dia, evolução e dados pessoais.",
    "detalhes": "Login individual, tela inicial com atalhos, treino da semana, perfil, notificações e acesso ao que o treinador liberou para ele.",
    "imagens": [],
-   "preco": 900,
+   "preco": 640,
    "mensal": 0
   },
   {
@@ -111,7 +111,7 @@
    "desc": "O aluno executa o treino no celular, registra cargas e acompanha o histórico.",
    "detalhes": "Execução do treino com cronômetro, carga anterior à vista (dados do último treino primeiro), resumo do treino carregado só ao entrar, histórico sob demanda (botão \"Histórico\"), zoom nos blocos e check-in da presença.",
    "imagens": [],
-   "preco": 1000,
+   "preco": 830,
    "mensal": 0
   },
   {
@@ -122,7 +122,7 @@
    "desc": "Painéis e gráficos de frequência, alunos, receita e desempenho em tempo quase real.",
    "detalhes": "Tela inicial do dono com indicadores, gráficos interativos de 30/90 dias, frequência por dia e horário, ranking e comparativos. Dados carregados sob demanda para economizar leituras.",
    "imagens": [],
-   "preco": 750,
+   "preco": 740,
    "mensal": 0
   },
   {
@@ -133,7 +133,7 @@
    "desc": "Planos, mensalidades, plano família e controle de pagamentos.",
    "detalhes": "Cadastro de planos definidos pelo dono, mensalidades por aluno, plano família que renova o grupo todo, treinadores externos com mensalidade, status de pagamento e visão de recebimentos.",
    "imagens": [],
-   "preco": 300,
+   "preco": 640,
    "mensal": 0
   },
   {
@@ -144,7 +144,7 @@
    "desc": "Área de dieta do treinador, com refeições por horário e cálculo de calorias e macros.",
    "detalhes": "Base oficial TACO (4ª edição) com 580 alimentos, busca por grupo/tipo/preparo, dietas por horário, calculadora com TMB (Mifflin-St Jeor), gasto diário e saldo calórico, e \"Minha dieta\" na tela do aluno.",
    "imagens": [],
-   "preco": 600,
+   "preco": 820,
    "mensal": 0
   },
   {
@@ -155,7 +155,7 @@
    "desc": "Vídeos curtos gravados com os próprios personais, explicando a execução de cada exercício.",
    "detalhes": "Inclui a integração dos vídeos ao cadastro de exercícios, exibidos ao aluno na hora do treino. A gravação é feita com os personais da Garrote (agenda a combinar).",
    "imagens": [],
-   "preco": 250,
+   "preco": 660,
    "mensal": 0
   },
   {
@@ -166,7 +166,7 @@
    "desc": "Assistente de inteligência artificial para tirar dúvidas de treino 24 horas por dia.",
    "detalhes": "Chat dentro do app do aluno, com limites de uso e regras definidas pela academia para manter respostas seguras e dentro do contexto de treino.",
    "imagens": [],
-   "preco": 1100,
+   "preco": 820,
    "mensal": 0
   },
   {
@@ -177,7 +177,7 @@
    "desc": "Imagem do corpo (frente e costas) destacando os músculos atingidos em cada exercício.",
    "detalhes": "Mapa anatômico em SVG, personalizável ao criar o exercício, no estilo dos adesivos das máquinas da academia.",
    "imagens": [],
-   "preco": 1000,
+   "preco": 660,
    "mensal": 0
   },
   {
@@ -188,7 +188,7 @@
    "desc": "Pagamento da assinatura direto no site, com confirmação automática no sistema.",
    "detalhes": "Integração com Mercado Pago (Pix e cartão), baixa automática da mensalidade, limites de requisição contra robôs e camadas de segurança contra acessos indevidos.",
    "imagens": [],
-   "preco": 900,
+   "preco": 820,
    "mensal": 0
   },
   {
@@ -199,7 +199,7 @@
    "desc": "Loja de suplementos e marmitas com carrinho e aviso de pedido na recepção.",
    "detalhes": "Catálogo com foto (upload), detalhes do produto, carrinho com animação, pop-up de novo pedido na recepção e, no painel do dono, controle de estoque e faturamento.",
    "imagens": [],
-   "preco": 250,
+   "preco": 320,
    "mensal": 0
   },
   {
