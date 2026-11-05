@@ -646,12 +646,26 @@
 
   /* ---------- Efeitos de página ---------- */
   function setupReveal() {
-    const els = document.querySelectorAll(".reveal");
-    if (reduce || !("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("in")); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { threshold: 0.15, rootMargin: "0px 0px -6% 0px" });
-    els.forEach((el) => io.observe(el));
+    const els = Array.from(document.querySelectorAll(".reveal"));
+    if (reduce) { els.forEach((el) => el.classList.add("in")); return; }
+    let left = els.slice();
+    // revela tudo que já está na tela (ou acima dela) — cobre carregamento com scroll restaurado
+    const sweep = () => {
+      const h = innerHeight;
+      left = left.filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top < h * 0.94) { el.classList.add("in"); return false; }
+        return true;
+      });
+      if (!left.length) { removeEventListener("scroll", onS); removeEventListener("resize", onS); }
+    };
+    let t = false;
+    const onS = () => { if (!t) { t = true; requestAnimationFrame(() => { t = false; sweep(); }); } };
+    addEventListener("scroll", onS, { passive: true });
+    addEventListener("resize", onS);
+    addEventListener("load", sweep);
+    sweep();
+    [150, 600, 1500].forEach((ms) => setTimeout(sweep, ms));
   }
 
   function setupProgress() {
