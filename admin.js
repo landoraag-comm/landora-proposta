@@ -64,8 +64,11 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" id="imp-json">Importar proposta (.json)</button><button class="btn btn-primary" id="nova">+ Nova proposta</button></div><input type="file" id="imp-file" accept="application/json,.json" hidden></div>
       ${lista.length ? `<div class="grid-p">${lista.map((p) => `
         <article class="panel pcard" data-slug="${esc(p.slug)}">
-          <h3>${esc(p.titulo || p.slug)}</h3>
-          <small>${p.cliente ? "Cliente: " + esc(p.cliente) + " · " : ""}${(p.modulos || []).length} módulos</small>
+          <div class="phead">
+            <div class="plogo ${p.logoFundo === "transparente" ? "dark" : ""}">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : `<span>${esc((p.cliente || p.slug || "?").trim().charAt(0).toUpperCase())}</span>`}</div>
+            <div><h3>${esc(p.titulo || p.slug)}</h3>
+            <small>${p.cliente ? "Cliente: " + esc(p.cliente) + " · " : ""}${(p.modulos || []).length} módulos${(p.planos || []).length ? " · " + p.planos.length + " planos" : ""}</small></div>
+          </div>
           <code>${esc(linkDe(p.slug))}</code>
           <div class="row">
             <button class="btn btn-primary btn-sm" data-a="edit">Editar</button>
