@@ -43,15 +43,25 @@
   const state = { now: [], later: [], filtro: "todos", assinado: null, plano: null };
   const prev = { now: [], later: [] };
 
+  // módulos marcados de fábrica (ex.: hospedagem) e dependências (upgrade leva o básico junto)
+  const padroes = () => D.modulos.filter((m) => m.padrao).map((m) => m.id);
+  function fecho(ids) {
+    const out = [];
+    const visita = (id) => { if (!byId[id] || out.includes(id)) return; (byId[id].requer || []).forEach(visita); out.push(id); };
+    ids.forEach(visita);
+    return out;
+  }
+  const dependentes = (id) => D.modulos.filter((m) => fecho([m.id]).includes(id) && m.id !== id).map((m) => m.id);
   function load() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(KEY) || "null");
-      if (raw) {
-        state.now = (raw.now || []).filter((id) => byId[id]);
-        state.later = (raw.later || []).filter((id) => byId[id] && !state.now.includes(id));
-        state.plano = raw.plano || null;
-      }
-    } catch (e) { /* sem storage: segue só em memória */ }
+    let raw = null;
+    try { raw = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { /* sem storage: segue só em memória */ }
+    if (raw) {
+      state.now = fecho((raw.now || []).filter((id) => byId[id]));
+      state.later = (raw.later || []).filter((id) => byId[id] && !state.now.includes(id));
+      state.plano = raw.plano || null;
+    } else {
+      state.now = fecho(padroes());
+    }
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify({ now: state.now, later: state.later, plano: state.plano })); } catch (e) {}
@@ -63,12 +73,13 @@
   /* ---------- Planos ---------- */
   const planById = () => Object.fromEntries((D.planos || []).map((p) => [p.id, p]));
   const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+  const planSet = (p) => fecho(p.modulos);
   function planoAtivo() {
     const p = state.plano && planById()[state.plano];
-    return p && sameSet(state.now, p.modulos) ? p : null;
+    return p && sameSet(state.now, planSet(p)) ? p : null;
   }
   const planoPreco = (p) => {
-    const s = sum(p.modulos);
+    const s = sum(planSet(p));
     return { unico: p.preco == null ? s.unico : p.preco, mensal: p.mensal == null ? s.mensal : p.mensal, baseUnico: s.unico, baseMensal: s.mensal };
   };
   // total do contrato: se um plano está selecionado (e os módulos batem com ele), vale o valor do plano
@@ -118,8 +129,16 @@
     const inLater = state.later.includes(id);
     state.now = state.now.filter((x) => x !== id);
     state.later = state.later.filter((x) => x !== id);
-    if (list === "now" && !inNow) { state.now.push(id); toast(m.nome + " no contrato"); }
-    else if (list === "later" && !inLater) { state.later.push(id); toast(m.nome + " guardado para depois"); }
+    if (list === "now" && !inNow) {
+      const extra = fecho([id]).filter((x) => x !== id && !state.now.includes(x));
+      extra.concat(id).forEach((x) => { state.later = state.later.filter((y) => y !== x); state.now.push(x); });
+      toast(extra.length ? m.nome + " no contrato, junto com " + extra.map((x) => byId[x].nome).join(", ") : m.nome + " no contrato");
+    } else if (list === "later" && !inLater) { state.later.push(id); toast(m.nome + " guardado para depois"); }
+    if (list !== "now") {
+      // quem depende deste módulo não pode ficar no contrato sozinho
+      const saiu = dependentes(id).filter((x) => state.now.includes(x));
+      if (saiu.length) { state.now = state.now.filter((x) => !saiu.includes(x)); toast(m.nome + " saiu — " + saiu.map((x) => byId[x].nome).join(", ") + " também"); }
+    }
     state.assinado = null;
     save();
     const el = cardEls[id];
@@ -158,6 +177,7 @@
 
   function priceHTML(m) {
     const parts = [];
+    if (m.aPartir && m.mensal > 0) parts.push('<span class="apartir">A partir de</span>');
     if (m.preco > 0) parts.push(`<strong>${brl(m.preco)}</strong><span>único</span>`);
     if (m.mensal > 0) {
       if (m.preco > 0) parts.push(`<span>+ ${brl(m.mensal)}/mês</span>`);
@@ -290,9 +310,9 @@
     const p = planById()[id];
     if (!p) return;
     if (planoAtivo() && planoAtivo().id === id) {
-      state.now = []; state.plano = null; toast("Plano removido");
+      state.now = fecho(padroes()); state.plano = null; toast("Plano removido");
     } else {
-      state.now = p.modulos.slice();
+      state.now = planSet(p);
       state.later = state.later.filter((x) => !state.now.includes(x));
       state.plano = id;
       toast("Plano " + p.nome + " selecionado");
@@ -454,43 +474,8 @@
     renderContrato();
   }
 
-  /* ---------- Assinatura ---------- */
-  const pad = $("#sign-pad");
-  const ctx = pad.getContext("2d");
-  let drawing = false, hasInk = false;
-
-  function resetPad() {
-    ctx.clearRect(0, 0, pad.width, pad.height);
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#ffffff";
-    hasInk = false;
-    $(".sign").classList.remove("has-ink");
-  }
-  function pos(e) {
-    const r = pad.getBoundingClientRect();
-    return { x: ((e.clientX - r.left) / r.width) * pad.width, y: ((e.clientY - r.top) / r.height) * pad.height };
-  }
-  pad.addEventListener("pointerdown", (e) => {
-    drawing = true;
-    pad.setPointerCapture(e.pointerId);
-    const p = pos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    ctx.lineTo(p.x + 0.1, p.y + 0.1);
-    ctx.stroke();
-    hasInk = true;
-    $(".sign").classList.add("has-ink");
-  });
-  pad.addEventListener("pointermove", (e) => {
-    if (!drawing) return;
-    const p = pos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-  });
-  ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => pad.addEventListener(ev, () => { drawing = false; }));
-  $("#sign-clear").addEventListener("click", resetPad);
+  /* ---------- Fechamento do contrato ---------- */
+  const resetPad = () => {};
 
   // CPF/CNPJ com máscara simples
   $("#f-doc").addEventListener("input", (e) => {
@@ -512,7 +497,7 @@
     const t = sumNow(), tl = sum(state.later);
     const linhas = state.now.map((id) => `• ${byId[id].nome} — ${byId[id].preco ? brl(byId[id].preco) : ""}${byId[id].mensal ? (byId[id].preco ? " + " : "") + brl(byId[id].mensal) + "/mês" : ""}`);
     if (t.plano) linhas.unshift(`Plano ${t.plano.nome}`);
-    let txt = `*Contrato Landora* — ${a.protocolo}\nCliente: ${cliente}\nAssinado por: ${a.nome} (${a.doc})\nData: ${a.data}\n\n*Contrato (agora)*\n${linhas.join("\n")}\n\nTotal: ${brl(t.unico)}${t.mensal ? " + " + brl(t.mensal) + "/mês" : ""}`;
+    let txt = `*Contrato Landora* — ${a.protocolo}\nCliente: ${cliente}\nContratante: ${a.nome} (${a.doc}) · ${a.email}\nData: ${a.data}\n\n*Contrato (agora)*\n${linhas.join("\n")}\n\nTotal: ${brl(t.unico)}${t.mensal ? " + " + brl(t.mensal) + "/mês" : ""}`;
     if (state.later.length) {
       txt += `\n\n*Reservado para depois*\n${state.later.map((id) => "• " + byId[id].nome).join("\n")}\nEstimativa: ${brl(tl.unico)}${tl.mensal ? " + " + brl(tl.mensal) + "/mês" : ""}`;
     }
@@ -523,7 +508,7 @@
     const t = sumNow(), tl = sum(state.later);
     const row = (id) => `<tr><td>${esc(byId[id].nome)}</td><td class="num">${byId[id].preco ? brl(byId[id].preco) : "—"}</td><td class="num">${byId[id].mensal ? brl(byId[id].mensal) : "—"}</td></tr>`;
     $("#print-sheet").innerHTML = `
-      <h1>Contrato Landora</h1>
+      <h1><span class="pl-dark"><svg viewBox="9 -2 990 150" role="img" aria-label="Landora"><use href="#layer1"/></svg></span> Contrato</h1>
       <p class="meta">${D.logo ? `<img alt="" src="${esc(D.logo)}" style="max-height:48px;max-width:180px;display:block;margin-bottom:8px;${D.logoFundo === "transparente" ? "background:#0A0A0A;padding:6px 10px;border-radius:8px" : ""}">` : ""}Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
       <h2>Módulos contratados</h2>
       <table><thead><tr><th>Módulo</th><th class="num">Único</th><th class="num">Mensal</th></tr></thead>
@@ -534,50 +519,30 @@
       <tfoot><tr><th>Estimativa</th><th class="num">${brl(tl.unico)}</th><th class="num">${brl(tl.mensal)}</th></tr></tfoot></table>` : ""}
       <h2>Condições</h2>
       <ul>${D.termos.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
-      <h2>Assinatura</h2>
-      <img alt="Assinatura" src="${a.assinaturaPrint}">
-      <p class="meta">${esc(a.nome)}</p>`;
+      <h2>Aceite eletrônico</h2>
+      <p class="meta">${esc(a.nome)} · ${esc(a.doc)} · ${esc(a.email)}<br>Protocolo ${esc(a.protocolo)} · ${esc(a.data)}</p>`;
   }
 
-  // Imagem da assinatura em fundo branco/traço escuro para impressão
-  function assinaturaPrint() {
-    const c = document.createElement("canvas");
-    c.width = pad.width; c.height = pad.height;
-    const x = c.getContext("2d");
-    x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
-    x.filter = "invert(1)";
-    x.drawImage(pad, 0, 0);
-    return c.toDataURL("image/png");
-  }
-
-  /* Gravação opcional no Firestore (preencha firebase-config.js) */
+  /* Grava o contrato fechado (Firestore; aparece no painel admin em "Contratos") */
   async function salvarFirestore(a) {
-    const cfg = window.FIREBASE_CONFIG;
-    if (!cfg || !cfg.projectId) return { ok: false, motivo: "firebase-nao-configurado" };
     try {
-      const V = "10.14.1";
-      const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
-      const app = initializeApp(cfg);
-      const db = getFirestore(app);
       const t = sumNow(), tl = sum(state.later);
-      await addDoc(collection(db, "propostas"), {
+      await window.Store.addProposta({
         protocolo: a.protocolo,
         modelo: slug || null,
-        plano: sumNow().plano ? sumNow().plano.nome : null,
+        plano: t.plano ? t.plano.nome : null,
         cliente,
         nome: a.nome,
         documento: a.doc,
-        assinatura: a.assinaturaPrint,
+        email: a.email,
         contrato: state.now.map((id) => ({ id, nome: byId[id].nome, preco: byId[id].preco, mensal: byId[id].mensal })),
         depois: state.later.map((id) => ({ id, nome: byId[id].nome, preco: byId[id].preco, mensal: byId[id].mensal })),
-        totalContrato: t,
+        totalContrato: { unico: t.unico, mensal: t.mensal },
         totalDepois: tl,
-        criadoEm: serverTimestamp(),
       });
       return { ok: true };
     } catch (e) {
-      console.error("Firestore:", e);
+      console.error("Contrato:", e);
       return { ok: false, motivo: "erro" };
     }
   }
@@ -590,16 +555,17 @@
     const digits = doc.replace(/\D/g, "");
     if (nome.split(/\s+/).length < 2) return erro("Informe seu nome completo.");
     if (digits.length !== 11 && digits.length !== 14) return erro("Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.");
-    if (!hasInk) return erro("Faça sua assinatura no quadro.");
+    const email = $("#f-email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return erro("Informe um e-mail válido.");
+    if (validadeRestante() <= 0 && D.criadoEm) return erro("Esta proposta expirou. Fale com a Landora para renovar.");
     if (!$("#f-aceite").checked) return erro("Aceite as condições para continuar.");
     if (!state.now.length) return erro("Adicione módulos ao contrato.");
 
     const now = new Date();
     const a = {
-      nome, doc,
+      nome, doc, email,
       data: now.toLocaleString("pt-BR"),
       protocolo: "LND-" + now.toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
-      assinaturaPrint: assinaturaPrint(),
     };
     const btn = e.submitter || $("#form-assinatura button[type=submit]");
     btn.disabled = true;
@@ -619,7 +585,7 @@
     }
     renderContrato();
     $("#contrato").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    if (!r.ok && r.motivo === "erro") toast("Assinado, mas não consegui salvar online. Envie o resumo.");
+    if (!r.ok && r.motivo === "erro") toast("Contrato fechado, mas não consegui salvar online. Envie o resumo.");
   });
 
   $("#btn-copiar").addEventListener("click", async () => {
@@ -627,7 +593,7 @@
     catch (e) { toast("Não foi possível copiar"); }
   });
   $("#btn-pdf").addEventListener("click", () => window.print());
-  $("#btn-editar").addEventListener("click", () => { state.assinado = null; resetPad(); renderContrato(); });
+  $("#btn-editar").addEventListener("click", () => { state.assinado = null; renderContrato(); });
 
   /* ---------- Carrinho: navegação e mobile ---------- */
   const cart = $("#carrinho"), scrim = $("#scrim");
@@ -639,7 +605,7 @@
   });
   $("#limpar").addEventListener("click", () => {
     if (!state.now.length && !state.later.length) return;
-    state.now = []; state.later = []; state.plano = null;
+    state.now = fecho(padroes()); state.later = []; state.plano = null;
     state.assinado = null;
     save();
     update();
@@ -741,7 +707,9 @@
       ...base,
       cliente: m.cliente || base.cliente,
       logo: typeof m.logo === "string" && m.logo.startsWith("data:image/") ? m.logo : "",
-      logoFundo: m.logoFundo === "transparente" ? "transparente" : "branco",
+      logoFundo: m.logoFundo === "transparente" ? "transparente" : m.logoFundo === "branco" ? "branco" : "auto",
+      criadoEm: +m.criadoEm || +m.atualizadoEm || 0,
+      diferenciais: Array.isArray(m.diferenciais) ? m.diferenciais.filter((d) => d && d.titulo) : null,
       planos: (m.planos || []).map((p) => ({
         id: String(p.id || ""), nome: String(p.nome || "Plano"), desc: String(p.desc || ""), destaque: !!p.destaque,
         preco: p.preco == null || p.preco === "" ? null : Math.max(0, +p.preco || 0),
@@ -757,7 +725,8 @@
         id: x.id, categoria: slugify(x.categoria || ""), icone: x.icone || "page", nome: x.nome || "Módulo",
         desc: x.desc || "", detalhes: x.detalhes || "", imagens: x.imagens || [],
         preco: +x.preco || 0, mensal: +x.mensal || 0,
-      })),
+        requer: Array.isArray(x.requer) ? x.requer.filter((id) => id !== x.id) : [], padrao: !!x.padrao, aPartir: !!x.aPartir,
+      })).map((x, i) => ({ x, i })).sort((a, b) => ((a.x.mensal > 0 && !a.x.preco) - (b.x.mensal > 0 && !b.x.preco)) || a.i - b.i).map((o) => o.x),
     };
   }
 
@@ -788,6 +757,47 @@
     init();
   }
 
+  /* ---------- Diferenciais ---------- */
+  const DIF_PADRAO = [
+    { titulo: "Tudo no nome do contratante", texto: "Domínio, hospedagem, banco de dados e código ficam registrados no CNPJ e no e-mail de quem contrata. Nada fica preso à Landora." },
+    { titulo: "Acesso total ao projeto", texto: "O dono recebe as chaves de tudo: painel, contas, repositório e dados. Você pode levar o projeto para onde quiser." },
+    { titulo: "Pague só pelo que usa", texto: "Monte o sistema por módulos, deixe o resto reservado para depois e acompanhe o total em tempo real." },
+  ];
+  function renderDiferenciais() {
+    const lista = D.diferenciais && D.diferenciais.length ? D.diferenciais : DIF_PADRAO;
+    $("#dif-grid").innerHTML = lista.map((d, i) => `<article class="dif-card reveal" style="--d:${i}"><span class="dif-n">${icon(i === 0 ? "shield" : i === 1 ? "star" : "cart")}</span><h3>${esc(d.titulo)}</h3><p>${esc(d.texto || "")}</p></article>`).join("");
+  }
+
+  /* ---------- Validade decrescente ---------- */
+  function validadeRestante() {
+    if (!D.criadoEm) return D.validadeDias;
+    const fim = D.criadoEm + D.validadeDias * 86400000;
+    return Math.ceil((fim - Date.now()) / 86400000);
+  }
+  function validadeTexto() {
+    const r = validadeRestante();
+    if (!D.criadoEm) return "Válida por " + D.validadeDias + " dias";
+    if (r <= 0) return "Proposta expirada";
+    if (r === 1) return "Último dia da proposta";
+    return "Válida por mais " + r + " dias";
+  }
+  function logoClara(url) {
+    return new Promise((res) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas"); c.width = 64; c.height = 32;
+          const x = c.getContext("2d"); x.drawImage(img, 0, 0, 64, 32);
+          const d = x.getImageData(0, 0, 64, 32).data; let n = 0, l = 0;
+          for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 40) { n++; l += (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255; }
+          res(n > 0 && l / n > 0.6);
+        } catch (_) { res(false); }
+      };
+      img.onerror = () => res(false);
+      img.src = url;
+    });
+  }
+
   function init() {
     setNavHeight();
     addEventListener("resize", setNavHeight);
@@ -803,19 +813,22 @@
       const pl = $("#parte-logo");
       pl.hidden = false; pl.querySelector("img").src = D.logo;
       const fl = $("#ft-logo"); fl.hidden = false; fl.src = D.logo;
-      if (D.logoFundo === "transparente") { fl.style.background = "transparent"; fl.style.padding = "0"; }
+      const aplicaTransp = () => { $(".logo-wrap", chip).classList.add("transp"); $("#parte-logo").classList.add("transp"); fl.style.background = "transparent"; fl.style.padding = "0"; };
+      if (D.logoFundo === "transparente") aplicaTransp();
+      else if (D.logoFundo === "auto") logoClara(D.logo).then((c) => { if (c) { D.logoFundo = "transparente"; aplicaTransp(); } });
     }
-    $("#validade").textContent = "Válida por " + D.validadeDias + " dias";
-    $("#validade-side").textContent = "Válida por " + D.validadeDias + " dias";
+    $("#validade").textContent = validadeTexto();
+    $("#validade-side").textContent = validadeTexto();
+    if (D.criadoEm && validadeRestante() <= 0) { $("#validade").classList.add("expirada"); $("#validade-side").classList.add("expirada"); }
     setupSideMenu();
-    $("#validade-dias").textContent = D.validadeDias;
+    $("#validade-txt").textContent = validadeTexto().replace(/^V/, "v").replace(/^P/, "p").replace(/^Ú/, "ú");
     $("#inst").textContent = D.instagram;
     const igUser = (D.instagram || "").replace("@", "");
     $("#ft-ig2").textContent = D.instagram;
     $("#ft-ig").href = $("#ft-ig2").href = "https://instagram.com/" + igUser;
     if (D.whatsapp) { const w = $("#ft-wpp"); w.hidden = false; w.href = "https://wa.me/" + D.whatsapp; }
     $("#ft-year").textContent = new Date().getFullYear();
-    $("#ft-validade").textContent = D.validadeDias + " dias";
+    $("#ft-validade").textContent = D.criadoEm ? "até " + new Date(D.criadoEm + D.validadeDias * 86400000).toLocaleDateString("pt-BR") : D.validadeDias + " dias";
     if (cliente === "Seu Cliente") $("#ft-cli-row").hidden = true; else $("#ft-cliente").textContent = cliente;
     document.title = "Proposta Landora · " + cliente;
     $("#termos").innerHTML = D.termos.map((t) => `<li>${esc(t)}</li>`).join("");
@@ -823,6 +836,7 @@
     buildMarquee();
     renderFiltros();
     renderPlanos();
+    renderDiferenciais();
     if ((D.planos || []).length) {
       const link = (cls) => { const l = document.createElement("a"); l.href = "#planos"; l.textContent = "Planos"; const ref = document.querySelector(cls + ' a[href="#vitrine"]'); ref.parentNode.insertBefore(l, ref); if (cls === "#side") l.insertAdjacentHTML("afterbegin", "<i>★</i>"); };
       link(".nav"); link("#side");

@@ -105,3 +105,14 @@ select option,select optgroup{background:#0A0A0A;color:#fff}
   .linkbox{flex-direction:column;align-items:stretch}.linkbox code{font-size:12px;overflow-wrap:anywhere}
   .pick{max-height:220px}.pickrow{font-size:13px!important}
 }
+
+.ccard{margin-bottom:14px;padding:22px}
+.chead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.chead h3{margin:0 0 2px;font-size:18px}.ctot{text-align:right}.ctot b{font-size:20px;display:block}
+.tagp{font-size:11px;background:linear-gradient(135deg,#1E3A8A,#0057FF);padding:3px 9px;border-radius:999px;vertical-align:middle;margin-left:6px}
+.cdados{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.cdados span{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;font-size:14px;overflow-wrap:anywhere}
+.cdados small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.cmods{list-style:none;margin:0 0 10px;padding:0}.cmods li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:13.5px}
+.cmods b{white-space:nowrap;color:var(--muted);font-weight:500}
+.ccard .row{display:flex;gap:8px;margin-top:10px}

@@ -94,6 +94,14 @@
 
   <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
+  <section class="dif" id="diferenciais" aria-labelledby="dif-titulo">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Diferencial</p>
+      <h2 id="dif-titulo">Seu projeto, suas regras</h2>
+    </div>
+    <div class="dif-grid" id="dif-grid"></div>
+  </section>
+
   <section class="como" id="como" aria-labelledby="como-titulo">
     <div class="sec-head reveal">
       <p class="eyebrow">Passo a passo</p>
@@ -117,8 +125,8 @@
         <div class="step-vis v3">
           <svg viewBox="0 0 120 40" aria-hidden="true"><path d="M4 28 C14 6 20 6 18 22 S30 36 42 22 S58 10 66 24 S84 34 96 20 S112 14 116 22"/></svg>
         </div>
-        <h3>Assine e pronto</h3>
-        <p>Assinatura na própria página, com resumo em PDF e envio direto para a Landora.</p>
+        <h3>Feche e pronto</h3>
+        <p>Aceite eletrônico na própria página, com resumo em PDF e o contrato chegando direto para a Landora.</p>
       </article>
     </div>
   </section>
@@ -170,7 +178,7 @@
           </div>
         </div>
 
-        <button class="btn btn-primary btn-block btn-arrow" id="ir-assinar" disabled>Ir para assinatura <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+        <button class="btn btn-primary btn-block btn-arrow" id="ir-assinar" disabled>Ir para o contrato <svg aria-hidden="true"><use href="#arrow"/></svg></button>
         <button class="link-btn" id="limpar">Limpar seleção</button>
       </div>
     </aside>
@@ -179,16 +187,16 @@
   <section class="contrato" id="contrato" aria-labelledby="contrato-titulo">
     <div class="contrato-card reveal">
       <p class="eyebrow">Passo final</p>
-      <h2 id="contrato-titulo">Contrato e assinatura</h2>
+      <h2 id="contrato-titulo">Fechar contrato</h2>
 
       <div id="contrato-vazio" class="empty-box">
-        Adicione ao menos um módulo ao <strong>Contrato</strong> para liberar a assinatura.
+        Adicione ao menos um módulo ao <strong>Contrato</strong> para fechar o contrato.
       </div>
 
       <div id="contrato-form" hidden>
         <div class="parties">
-          <div><small>Contratada</small><strong>Landora</strong><span id="inst"></span></div>
-          <div><small>Contratante</small><span class="logo-wrap sm" id="parte-logo" hidden><img alt=""></span><strong id="parte-cliente"></strong><span>Proposta válida por <span id="validade-dias"></span> dias</span></div>
+          <div><small>Contratada</small><svg class="party-logo" viewBox="9 -2 990 150" role="img" aria-label="Landora"><use href="#layer1"/></svg><span id="inst"></span></div>
+          <div><small>Contratante</small><span class="logo-wrap sm" id="parte-logo" hidden><img alt=""></span><strong id="parte-cliente"></strong><span>Proposta <span id="validade-txt"></span></span></div>
         </div>
 
         <h3>Módulos contratados</h3>
@@ -211,24 +219,18 @@
             <label>CPF ou CNPJ
               <input type="text" id="f-doc" inputmode="numeric" autocomplete="off" required>
             </label>
-          </div>
-
-          <div class="sign">
-            <div class="sign-head">
-              <span>Assinatura</span>
-              <button type="button" class="link-btn" id="sign-clear">Limpar</button>
-            </div>
-            <canvas id="sign-pad" width="900" height="260" aria-label="Área para assinar com o dedo ou o mouse"></canvas>
-            <span class="sign-hint" id="sign-hint">Assine aqui com o dedo ou o mouse</span>
+            <label>E-mail do contratante
+              <input type="email" id="f-email" autocomplete="email" required>
+            </label>
           </div>
 
           <label class="check">
             <input type="checkbox" id="f-aceite" required>
-            <span>Li e concordo com as condições desta proposta.</span>
+            <span>Li e concordo com as condições desta proposta. Meu aceite eletrônico vale como assinatura do contrato.</span>
           </label>
 
           <p class="form-error" id="form-erro" role="alert" hidden></p>
-          <button type="submit" class="btn btn-primary btn-lg btn-arrow">Assinar contrato <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button type="submit" class="btn btn-primary btn-lg btn-arrow">Fechar contrato <svg aria-hidden="true"><use href="#arrow"/></svg></button>
         </form>
       </div>
 
@@ -236,7 +238,7 @@
         <div class="done-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
         </div>
-        <h3>Contrato assinado</h3>
+        <h3>Contrato fechado</h3>
         <p>Protocolo <strong id="protocolo"></strong></p>
         <p class="muted">Agora é só enviar o resumo para a Landora iniciar o projeto.</p>
         <div class="done-actions">
@@ -275,7 +277,7 @@
       <h4>Proposta</h4>
       <a href="#vitrine">Módulos</a>
       <a href="#como">Como funciona</a>
-      <a href="#contrato">Contrato e assinatura</a>
+      <a href="#contrato">Contrato</a>
     </nav>
     <div class="ft-col">
       <h4>O que fazemos</h4>

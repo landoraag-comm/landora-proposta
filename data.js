@@ -164,6 +164,7 @@ window.PROPOSTA = {
   ],
 
   termos: [
+    "Todo o projeto (domínio, hospedagem, banco de dados, contas e código-fonte) fica registrado no CNPJ e no e-mail do contratante, que é o dono e tem acesso a tudo.",
     "Os valores únicos correspondem à implantação de cada módulo; valores mensais são recorrentes enquanto o módulo estiver ativo.",
     "O prazo de entrega e o cronograma são definidos em conjunto após a assinatura.",
     "Módulos guardados em “Depois” não fazem parte deste contrato e podem ser contratados mais adiante, com os valores desta proposta durante a validade.",

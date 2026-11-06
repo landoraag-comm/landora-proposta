@@ -41,6 +41,13 @@
       this._w("index", this._r("index", []).filter((s) => s !== slug));
       localStorage.removeItem(LK + "m:" + slug);
     },
+    async addProposta(d) {
+      const l = this._r("contratos", []);
+      l.unshift({ ...d, id: "c" + Date.now(), criadoEm: Date.now() });
+      this._w("contratos", l);
+    },
+    async listPropostas() { return this._r("contratos", []); },
+    async deleteProposta(id) { this._w("contratos", this._r("contratos", []).filter((c) => c.id !== id)); },
     onAuth(cb) { setTimeout(() => cb({ email: "demo@local", demo: true }), 0); },
     async signIn() {},
     async signOut() {},
@@ -99,6 +106,20 @@
       const ms = await fs.getDocs(fs.collection(db, "modelos", slug, "modulos"));
       for (const d of ms.docs) await fs.deleteDoc(d.ref);
       await fs.deleteDoc(fs.doc(db, "modelos", slug));
+    },
+    async addProposta(d) {
+      const { fs, db } = await fb();
+      await fs.addDoc(fs.collection(db, "propostas"), { ...d, criadoEm: fs.serverTimestamp() });
+    },
+    async listPropostas() {
+      const { fs, db } = await fb();
+      const snap = await fs.getDocs(fs.collection(db, "propostas"));
+      return snap.docs.map((x) => { const v = x.data(); return { ...v, id: x.id, criadoEm: v.criadoEm && v.criadoEm.toMillis ? v.criadoEm.toMillis() : 0 }; })
+        .sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+    },
+    async deleteProposta(id) {
+      const { fs, db } = await fb();
+      await fs.deleteDoc(fs.doc(db, "propostas", id));
     },
     async onAuth(cb) {
       const { au, auth } = await fb();

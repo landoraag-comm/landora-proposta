@@ -9,15 +9,15 @@ service cloud.firestore {
         && request.auth.token.email in ['landora.comercial@gmail.com'];
     }
 
-    // Propostas assinadas: qualquer visitante pode CRIAR; só admin lê.
+    // Contratos fechados (aceite eletrônico): qualquer visitante pode CRIAR; só admin lê/apaga.
     match /propostas/{id} {
-      allow create: if request.resource.data.keys().hasAll(['protocolo','cliente','nome','documento','assinatura','contrato'])
+      allow create: if request.resource.data.keys().hasAll(['protocolo','cliente','nome','documento','email','contrato'])
                     && request.resource.data.contrato is list
                     && request.resource.data.contrato.size() > 0
                     && request.resource.data.nome is string
                     && request.resource.data.nome.size() < 200
-                    && request.resource.data.assinatura is string
-                    && request.resource.data.assinatura.size() < 400000;
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() < 200;
       allow read, update, delete: if isAdmin();
     }
 

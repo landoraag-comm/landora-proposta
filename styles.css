@@ -352,10 +352,10 @@ table.resumo{width:100%;border-collapse:collapse;font-size:14px}
 form{margin-top:30px;display:flex;flex-direction:column;gap:18px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
-input[type=text]{
+input[type=text],input[type=email]{
   padding:13px 15px;border-radius:14px;border:1px solid var(--line-2);background:rgba(10,10,10,.6);color:var(--text);font:inherit;font-size:15px;transition:border-color .25s,box-shadow .25s;
 }
-input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 4px rgba(0,87,255,.18)}
+input[type=text]:focus,input[type=email]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 4px rgba(0,87,255,.18)}
 .sign{position:relative}
 .sign-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:6px}
 #sign-pad{
@@ -639,4 +639,20 @@ input[type=text]:focus{outline:none;border-color:var(--blue-3);box-shadow:0 0 0 
 @media (max-width:980px){
   .filters{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
   .chip{flex:0 0 calc((100% - 18px) / 4)}
+}
+
+/* ---------- Diferenciais, contrato e validade ---------- */
+.dif{max-width:1180px;margin:0 auto;padding:40px 24px 10px}
+.dif-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:22px}
+.dif-card{background:linear-gradient(180deg,rgba(31,41,55,.72),rgba(10,10,10,.72));border:1px solid var(--line,rgba(255,255,255,.12));border-radius:20px;padding:24px}
+.dif-card:first-child{border-color:rgba(0,87,255,.55);box-shadow:0 0 0 1px rgba(0,87,255,.2),0 16px 40px -24px rgba(0,87,255,.6)}
+.dif-n{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#1E3A8A,#0057FF);margin-bottom:14px}
+.dif-n svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dif-card h3{margin:0 0 6px;font-size:18px}.dif-card p{margin:0;color:var(--muted,rgba(255,255,255,.66));font-size:14.5px;line-height:1.55}
+.party-logo{display:block;height:30px;width:auto;margin:6px 0 4px}
+.price .apartir{display:block;width:100%;font-size:12px;letter-spacing:.04em;color:var(--muted,rgba(255,255,255,.66))}
+.pill.expirada{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.3)}
+@media print{
+  #print-sheet .pl-dark{display:inline-block;background:#0A0A0A;padding:6px 12px;border-radius:8px;vertical-align:middle;margin-right:8px}
+  #print-sheet .pl-dark svg{height:22px;width:auto;display:block}
 }

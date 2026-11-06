@@ -53,7 +53,8 @@
     app.innerHTML = topo() + `<p class="empty">Carregando…</p>`;
     bindSair();
     let lista = [];
-    try { lista = await S.listModelos(); }
+    let nContratos = 0;
+    try { lista = await S.listModelos(); try { nContratos = (await S.listPropostas()).length; } catch (_) {} }
     catch (e) {
       console.error(e);
       app.innerHTML = topo() + `<div class="panel"><b class="msg-err">Sem permissão ou erro ao ler.</b><p class="sub" style="margin-top:8px">Confirme que o seu e-mail está na lista <code>isAdmin()</code> do firestore.rules e que as regras foram publicadas. (${esc(e.code || e.message)})</p></div>`;
@@ -61,7 +62,7 @@
     }
     app.innerHTML = topo() + `
       <div class="sec-h" style="margin-top:0"><div><h1>Propostas</h1><p class="sub" style="margin:0">Cada proposta usa o site como base, com os módulos e valores que você cadastrar.</p></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" id="imp-json">Importar proposta (.json)</button><button class="btn btn-primary" id="nova">+ Nova proposta</button></div><input type="file" id="imp-file" accept="application/json,.json" hidden></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" id="ver-contratos">Contratos fechados${nContratos ? " (" + nContratos + ")" : ""}</button><button class="btn btn-ghost" id="imp-json">Importar proposta (.json)</button><button class="btn btn-primary" id="nova">+ Nova proposta</button></div><input type="file" id="imp-file" accept="application/json,.json" hidden></div>
       ${lista.length ? `<div class="grid-p">${lista.map((p) => `
         <article class="panel pcard" data-slug="${esc(p.slug)}">
           <div class="phead">
@@ -83,6 +84,7 @@
     $("#nova").onclick = () => abrir(novaProposta());
     /* importa uma proposta pronta (arquivo .json) e abre no editor; ela só é gravada quando você clica em "Salvar proposta" */
     $("#imp-json").onclick = () => $("#imp-file").click();
+    $("#ver-contratos").onclick = viewContratos;
     $("#imp-file").onchange = async (e) => {
       const f = e.target.files[0]; e.target.value = "";
       if (!f) return;
@@ -95,11 +97,16 @@
           logo: typeof j.logo === "string" && j.logo.startsWith("data:image/") ? j.logo : "", validadeDias: Math.max(1, parseInt(j.validadeDias, 10) || b.validadeDias || 15),
           whatsapp: String(j.whatsapp || "").replace(/\D/g, ""), instagram: String(j.instagram || b.instagram || ""),
           logoFundo: j.logoFundo === "transparente" ? "transparente" : "branco",
+          criadoEm: Date.now(),
+          diferenciais: Array.isArray(j.diferenciais) ? j.diferenciais.filter((d) => d && d.titulo).map((d) => ({ titulo: String(d.titulo), texto: String(d.texto || "") })) : [],
           termos: Array.isArray(j.termos) && j.termos.length ? j.termos.map(String) : b.termos.slice(),
           modulos: j.modulos.map((m, i) => { let id = slugify(m.id || m.nome || "modulo") || "modulo"; while (usados.has(id)) id += "-" + uid().slice(0, 2); usados.add(id); idmap[String(m.id || m.nome)] = id;
             return { id, categoria: String(m.categoria || ""), icone: ICONES.includes(m.icone) ? m.icone : "page", nome: String(m.nome || "Módulo"), desc: String(m.desc || ""), detalhes: String(m.detalhes || ""),
-              imagens: Array.isArray(m.imagens) ? m.imagens.filter((u) => typeof u === "string" && u.startsWith("data:image/")).slice(0, 4) : [], preco: Math.max(0, +m.preco || 0), mensal: Math.max(0, +m.mensal || 0) }; }),
+              imagens: Array.isArray(m.imagens) ? m.imagens.filter((u) => typeof u === "string" && u.startsWith("data:image/")).slice(0, 4) : [], preco: Math.max(0, +m.preco || 0), mensal: Math.max(0, +m.mensal || 0),
+              requer: Array.isArray(m.requer) ? m.requer.map(String) : [], padrao: !!m.padrao, aPartir: !!m.aPartir }; }),
         };
+        p.modulos.forEach((m) => { m.requer = m.requer.map((x) => idmap[x]).filter((x) => x && x !== m.id); });
+        if (!j.logoFundo && p.logo) p.logoFundo = (await logoEhClara(p.logo)) ? "transparente" : "branco";
         p.planos = (Array.isArray(j.planos) ? j.planos : []).map((pl) => ({
           id: slugify(pl.id || pl.nome || "plano") || "plano", nome: String(pl.nome || "Plano"), desc: String(pl.desc || ""), destaque: !!pl.destaque,
           preco: pl.preco == null || pl.preco === "" ? null : Math.max(0, +pl.preco || 0), mensal: pl.mensal == null || pl.mensal === "" ? null : Math.max(0, +pl.mensal || 0),
@@ -119,7 +126,7 @@
         if (a === "dup") {
           const novo = JSON.parse(JSON.stringify(p));
           novo.slug = p.slug + "-copia-" + uid().slice(0, 3);
-          novo.titulo = (p.titulo || p.slug) + " (cópia)";
+          novo.titulo = (p.titulo || p.slug) + " (cópia)"; novo.criadoEm = Date.now();
           abrir(novo, true);
         }
         if (a === "del" && confirm(`Excluir a proposta “${p.titulo || p.slug}”? Isso não pode ser desfeito.`)) {
@@ -134,12 +141,44 @@
   /* ---------- Editor ---------- */
   function novaProposta() {
     const b = window.PROPOSTA;
-    return { slug: "", titulo: "", cliente: "", logo: "", logoFundo: "branco", planos: [], validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
+    return { slug: "", titulo: "", cliente: "", logo: "", logoFundo: "branco", planos: [], diferenciais: [], criadoEm: Date.now(), validadeDias: b.validadeDias || 15, whatsapp: b.whatsapp || "", instagram: b.instagram || "", termos: b.termos.slice(), modulos: [] };
   }
 
   function abrir(p, novo = true) {
     ed = { p, novo, slugTocado: !novo };
     viewEditor();
+  }
+
+  async function viewContratos() {
+    app.innerHTML = topo() + `<p class="empty">Carregando…</p>`; bindSair();
+    let L = [];
+    try { L = await S.listPropostas(); } catch (e) { console.error(e); toast("Não consegui ler os contratos"); return viewLista(); }
+    const dt = (t) => (t ? new Date(t).toLocaleString("pt-BR") : "—");
+    app.innerHTML = topo() + `
+      <div class="sec-h" style="margin-top:0"><div><h1>Contratos fechados</h1><p class="sub" style="margin:0">Cada contrato fechado pelo cliente no site chega aqui, com os dados do contratante.</p></div>
+      <button class="btn btn-ghost" id="voltar">← Propostas</button></div>
+      ${L.length ? L.map((c, i) => `
+        <article class="panel ccard" data-i="${i}">
+          <div class="chead"><div><h3>${esc(c.cliente || "Cliente")}${c.plano ? ` <span class="tagp">${esc(c.plano)}</span>` : ""}</h3><small>${esc(c.protocolo)} · ${dt(c.criadoEm)}${c.modelo ? " · /" + esc(c.modelo) : ""}</small></div>
+            <div class="ctot"><b>${brl((c.totalContrato || {}).unico)}</b>${(c.totalContrato || {}).mensal ? `<small>+ ${brl(c.totalContrato.mensal)}/mês</small>` : ""}</div></div>
+          <div class="cdados"><span><small>Contratante</small>${esc(c.nome)}</span><span><small>CPF/CNPJ</small>${esc(c.documento)}</span><span><small>E-mail</small><a href="mailto:${esc(c.email || "")}">${esc(c.email || "—")}</a></span></div>
+          <ul class="cmods">${(c.contrato || []).map((m) => `<li><span>${esc(m.nome)}</span><b>${m.preco ? brl(m.preco) : ""}${m.mensal ? (m.preco ? " + " : "") + brl(m.mensal) + "/mês" : ""}</b></li>`).join("")}</ul>
+          ${(c.depois || []).length ? `<small class="sub">Reservado para depois: ${c.depois.map((m) => esc(m.nome)).join(", ")}</small>` : ""}
+          <div class="row"><button class="btn btn-ghost btn-sm" data-a="copiar">Copiar resumo</button><button class="btn btn-ghost btn-sm" data-a="del">Excluir</button></div>
+        </article>`).join("") : `<div class="panel empty">Nenhum contrato fechado ainda.</div>`}`;
+    bindSair();
+    $("#voltar").onclick = viewLista;
+    app.querySelectorAll(".ccard").forEach((el) => {
+      const c = L[+el.dataset.i];
+      el.onclick = async (e) => {
+        const a = e.target.dataset.a; if (!a) return;
+        if (a === "copiar") {
+          const t = `Contrato ${c.protocolo}\nCliente: ${c.cliente}\nContratante: ${c.nome} (${c.documento}) · ${c.email || ""}\nData: ${dt(c.criadoEm)}\n${c.plano ? "Plano: " + c.plano + "\n" : ""}\n${(c.contrato || []).map((m) => "• " + m.nome).join("\n")}\n\nTotal: ${brl((c.totalContrato || {}).unico)}${(c.totalContrato || {}).mensal ? " + " + brl(c.totalContrato.mensal) + "/mês" : ""}`;
+          try { await navigator.clipboard.writeText(t); toast("Resumo copiado"); } catch (_) { toast("Não foi possível copiar"); }
+        }
+        if (a === "del" && confirm("Excluir este contrato?")) { await S.deleteProposta(c.id); toast("Contrato excluído"); viewContratos(); }
+      };
+    });
   }
 
   function viewEditor() {
@@ -178,7 +217,8 @@
           <small>PNG com fundo transparente funciona. Ao enviar, o painel escolhe o fundo sozinho; você pode trocar.</small>
         </div>
         <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" value="${esc(p.instagram)}" placeholder="@landora.ag"></div>
-        <div class="field" style="margin:0"><label for="f-termos">Condições (uma por linha)</label><textarea id="f-termos" rows="4">${esc((p.termos || []).join("\n"))}</textarea></div>
+        <div class="field"><label for="f-termos">Condições (uma por linha)</label><textarea id="f-termos" rows="4">${esc((p.termos || []).join("\n"))}</textarea></div>
+        <div class="field" style="margin:0"><label for="f-dif">Diferenciais (um por linha: Título | texto)</label><textarea id="f-dif" rows="4" placeholder="Vazio = usa os diferenciais padrão da Landora (dono de tudo no CNPJ e e-mail do contratante)">${esc((p.diferenciais || []).map((d) => d.titulo + " | " + (d.texto || "")).join("\n"))}</textarea></div>
       </div>
 
       <div class="sec-h"><h2>Módulos <small style="color:var(--muted);font-weight:400">(${p.modulos.length})</small></h2>
@@ -241,7 +281,7 @@
       lerForm();
       const i = +row.dataset.i;
       if (a === "edit") drawerModulo(i);
-      if (a === "del" && confirm("Remover este módulo?")) { const rid = p.modulos[i].id; p.modulos.splice(i, 1); (p.planos || []).forEach((pl) => { pl.modulos = pl.modulos.filter((x) => x !== rid); }); p.planos = (p.planos || []).filter((pl) => pl.modulos.length); viewEditor(); }
+      if (a === "del" && confirm("Remover este módulo?")) { const rid = p.modulos[i].id; p.modulos.splice(i, 1); (p.planos || []).forEach((pl) => { pl.modulos = pl.modulos.filter((x) => x !== rid); }); p.planos = (p.planos || []).filter((pl) => pl.modulos.length); p.modulos.forEach((x) => { x.requer = (x.requer || []).filter((y) => y !== rid); }); viewEditor(); }
       if (a === "up" && i > 0) { [p.modulos[i - 1], p.modulos[i]] = [p.modulos[i], p.modulos[i - 1]]; viewEditor(); }
       if (a === "down" && i < p.modulos.length - 1) { [p.modulos[i + 1], p.modulos[i]] = [p.modulos[i], p.modulos[i + 1]]; viewEditor(); }
     };
@@ -288,6 +328,7 @@
     p.whatsapp = $("#f-wpp").value.replace(/\D/g, "");
     p.instagram = $("#f-ig").value.trim();
     p.termos = $("#f-termos").value.split("\n").map((t) => t.trim()).filter(Boolean);
+    p.diferenciais = $("#f-dif").value.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => { const [t, ...r] = l.split("|"); return { titulo: t.trim(), texto: r.join("|").trim() }; }).filter((d) => d.titulo);
   }
 
   async function salvar() {
@@ -298,6 +339,7 @@
     if (!p.slug) return toast("Informe o endereço (slug)");
     if (RESERVADOS.includes(p.slug)) return toast("Esse endereço é reservado, escolha outro");
     if (!p.modulos.length) return toast("Cadastre ao menos um módulo");
+    if (!p.criadoEm) p.criadoEm = Date.now();
     const ids = new Set(p.modulos.map((m) => m.id));
     p.planos = (p.planos || []).map((pl) => ({ ...pl, modulos: pl.modulos.filter((x) => ids.has(x)) })).filter((pl) => pl.modulos.length);
     const btn = $("#salvar"); btn.disabled = true; btn.textContent = "Salvando…";
@@ -321,7 +363,8 @@
   /* ---------- Módulo (gaveta) ---------- */
   function drawerModulo(i) {
     const p = ed.p;
-    const m = i == null ? { id: "", categoria: "", icone: "page", nome: "", desc: "", detalhes: "", imagens: [], preco: 0, mensal: 0 } : JSON.parse(JSON.stringify(p.modulos[i]));
+    const m = i == null ? { id: "", categoria: "", icone: "page", nome: "", desc: "", detalhes: "", imagens: [], preco: 0, mensal: 0, requer: [], padrao: false, aPartir: false } : JSON.parse(JSON.stringify(p.modulos[i]));
+    const outros = p.modulos.filter((x) => x.id !== m.id);
     const cats = [...new Set(p.modulos.map((x) => x.categoria).filter(Boolean))];
     const d = document.createElement("div");
     d.className = "drawer";
@@ -337,6 +380,11 @@
           <div class="field"><label for="m-preco">Valor único (R$)</label><input id="m-preco" type="number" min="0" step="0.01" value="${m.preco || 0}"></div>
           <div class="field"><label for="m-mensal">Valor mensal (R$)</label><input id="m-mensal" type="number" min="0" step="0.01" value="${m.mensal || 0}"></div>
         </div>
+        <label class="check"><input type="checkbox" id="m-apartir" ${m.aPartir ? "checked" : ""}> Mostrar “A partir de” no valor mensal</label>
+        <label class="check"><input type="checkbox" id="m-padrao" ${m.padrao ? "checked" : ""}> Já vem selecionado no contrato (ex.: hospedagem)</label>
+        ${outros.length ? `<div class="field"><label>Requer (é selecionado junto — use em upgrades)</label>
+          <div class="pick" id="m-req">${outros.map((x) => `<label class="pickrow"><input type="checkbox" value="${esc(x.id)}" ${(m.requer || []).includes(x.id) ? "checked" : ""}><span>${esc(x.nome)}</span></label>`).join("")}</div>
+          <small>Ex.: “Vitrine completa” requer “Vitrine simples”. Ao escolher o upgrade, o básico entra junto; se o básico sair, o upgrade sai.</small></div>` : ""}
         <div class="field"><label for="m-desc">Descrição curta (aparece no card)</label><textarea id="m-desc" rows="2">${esc(m.desc)}</textarea></div>
         <div class="field"><label for="m-det">Detalhes (aparece ao clicar em “Ver detalhes”)</label><textarea id="m-det" rows="5" placeholder="O que está incluso, como funciona, prazos…">${esc(m.detalhes)}</textarea></div>
         <div class="field"><label>Imagens (até 4)</label>
@@ -374,6 +422,8 @@
         nome, categoria: $("#m-cat", d).value.trim(), icone: $("#m-ico", d).value,
         preco: Math.max(0, parseFloat($("#m-preco", d).value) || 0), mensal: Math.max(0, parseFloat($("#m-mensal", d).value) || 0),
         desc: $("#m-desc", d).value.trim(), detalhes: $("#m-det", d).value.trim(),
+        aPartir: $("#m-apartir", d).checked, padrao: $("#m-padrao", d).checked,
+        requer: Array.from(d.querySelectorAll("#m-req input:checked")).map((x) => x.value),
       });
       if (!m.id) m.id = (slugify(nome) || "modulo") + "-" + uid();
       if (i == null) p.modulos.push(m); else p.modulos[i] = m;
