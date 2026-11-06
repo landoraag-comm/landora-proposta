@@ -175,6 +175,13 @@
   /* ---------- Vitrine ---------- */
   const cardEls = {};
 
+  // "Upgrade de …": mostra de qual módulo este é o upgrade (o básico entra junto ao selecionar)
+  function upgradeTag(m) {
+    const base = (m.requer || []).filter((id) => byId[id] && byId[id].categoria === m.categoria && !byId[id].padrao);
+    const alvo = base.length ? base : (m.requer || []).filter((id) => byId[id] && !byId[id].padrao);
+    if (!alvo.length) return "";
+    return `<div class="up-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Upgrade de <b>${esc(alvo.map((id) => byId[id].nome.replace(/\s*\(.*$/, "").replace(/\s*[—–-]\s*simples$/i, "")).join(" + "))}</b> · inclui o básico</span></div>`;
+  }
   function priceHTML(m) {
     const parts = [];
     if (m.aPartir && m.mensal > 0) parts.push('<span class="apartir">A partir de</span>');
@@ -197,6 +204,7 @@
         <span class="tag"></span>
       </div>
       <h3></h3>
+      ${upgradeTag(m)}
       <p></p>
       ${m.detalhes || (m.imagens && m.imagens.length) ? '<button type="button" class="link-btn card-more">Ver detalhes</button>' : ""}
       <div class="price">${priceHTML(m)}</div>
@@ -334,6 +342,7 @@
     $("#det-thumbs").innerHTML = imgs.length > 1 ? imgs.map((u, i) => `<button type="button" class="${i ? "" : "on"}" data-i="${i}"><img alt="" src="${esc(u)}"></button>`).join("") : "";
     $("#det-ico").innerHTML = icon(m.icone);
     $("#det-title").textContent = m.nome;
+    const ut = $("#det-up"); if (ut) ut.innerHTML = upgradeTag(m);
     $("#det-desc").textContent = m.desc || "";
     $("#det-more").textContent = m.detalhes || "";
     $("#det-price").innerHTML = priceHTML(m);

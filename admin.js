@@ -382,9 +382,9 @@
         </div>
         <label class="check"><input type="checkbox" id="m-apartir" ${m.aPartir ? "checked" : ""}> Mostrar “A partir de” no valor mensal</label>
         <label class="check"><input type="checkbox" id="m-padrao" ${m.padrao ? "checked" : ""}> Já vem selecionado no contrato (ex.: hospedagem)</label>
-        ${outros.length ? `<div class="field"><label>Requer (é selecionado junto — use em upgrades)</label>
+        ${outros.length ? `<div class="field"><label>Este módulo é upgrade de… (o básico é selecionado junto)</label>
           <div class="pick" id="m-req">${outros.map((x) => `<label class="pickrow"><input type="checkbox" value="${esc(x.id)}" ${(m.requer || []).includes(x.id) ? "checked" : ""}><span>${esc(x.nome)}</span></label>`).join("")}</div>
-          <small>Ex.: “Vitrine completa” requer “Vitrine simples”. Ao escolher o upgrade, o básico entra junto; se o básico sair, o upgrade sai.</small></div>` : ""}
+          <small>Ex.: na “Vitrine completa”, marque “Vitrine simples”. O card passa a mostrar “Upgrade de Vitrine”, e ao escolher o upgrade o básico entra junto; se o básico sair, o upgrade sai.</small></div>` : ""}
         <div class="field"><label for="m-desc">Descrição curta (aparece no card)</label><textarea id="m-desc" rows="2">${esc(m.desc)}</textarea></div>
         <div class="field"><label for="m-det">Detalhes (aparece ao clicar em “Ver detalhes”)</label><textarea id="m-det" rows="5" placeholder="O que está incluso, como funciona, prazos…">${esc(m.detalhes)}</textarea></div>
         <div class="field"><label>Imagens (até 4)</label>
