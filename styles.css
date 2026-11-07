@@ -232,7 +232,8 @@ a{color:inherit}
 .card-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s var(--ease)}
 .card:hover .card-cover img{transform:scale(1.05)}
 .card-more{align-self:flex-start;padding:0;color:var(--blue-soft)}
-.boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;text-align:center;padding:24px;background:var(--bg)}
+.boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;text-align:center;padding:24px;background:#0A0A0A radial-gradient(ellipse 80% 55% at 50% 38%,rgba(0,87,255,.2),rgba(30,58,138,.08) 50%,transparent 75%);transition:opacity .4s ease}
+.boot.out{opacity:0;pointer-events:none}
 .boot h2{font-size:22px;margin-bottom:8px}.boot p{color:var(--muted)}
 .modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(10,10,10,.78);backdrop-filter:blur(6px);opacity:0;transition:opacity .25s}
 .modal.on{opacity:1}
@@ -660,3 +661,14 @@ input[type=text]:focus,input[type=email]:focus{outline:none;border-color:var(--b
 .up-tag{display:inline-flex;align-items:center;gap:8px;margin:2px 0 10px;padding:6px 12px;border-radius:999px;background:rgba(0,87,255,.14);border:1px solid rgba(0,87,255,.5);font-size:12.5px;color:rgba(255,255,255,.85);max-width:100%}
 .up-tag svg{flex:none;width:14px;height:14px;fill:none;stroke:#0057FF;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .up-tag b{color:#fff;font-weight:700}
+
+/* carregamento da proposta */
+.boot-in{display:grid;justify-items:center;gap:6px;max-width:420px}
+.boot-logo{height:64px;width:auto;max-width:78vw;margin-bottom:26px;animation:bootPulse 1.8s ease-in-out infinite}
+.boot-bar{width:min(240px,64vw);height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:20px}
+.boot-bar i{display:block;width:40%;height:100%;border-radius:99px;background:linear-gradient(90deg,#1E3A8A,#0057FF,#fff);animation:bootBar 1.15s cubic-bezier(.5,0,.3,1) infinite}
+@keyframes bootBar{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+@keyframes bootPulse{0%,100%{opacity:.72;transform:scale(.985)}50%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.boot-logo,.boot-bar i{animation:none}.boot-bar i{width:100%}}
+.party-name{display:block;font-size:16px;margin-top:2px}
+.party-ig{display:block;color:var(--muted,rgba(255,255,255,.66));font-size:14px}

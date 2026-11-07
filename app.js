@@ -741,15 +741,23 @@
 
   function bootMsg(titulo, texto) {
     const b = $("#boot");
-    b.hidden = false;
-    b.innerHTML = `<div><h2></h2><p></p></div>`;
+    b.hidden = false; b.classList.remove("out");
     $("h2", b).textContent = titulo;
     $("p", b).textContent = texto;
+    // mensagens de erro/aviso: sem animação de carregamento
+    if (!/^Carregando/.test(titulo)) { const bar = $(".boot-bar", b); if (bar) bar.hidden = true; }
+  }
+  function fechaBoot() {
+    const b = $("#boot");
+    if (!b || b.hidden) return;
+    b.classList.add("out");
+    setTimeout(() => { b.hidden = true; }, 420);
   }
 
   async function boot() {
     if (slug) {
       bootMsg("Carregando proposta…", "Só um instante.");
+      $(".boot-bar").hidden = false;
       try {
         const m = await window.Store.getModelo(slug);
         if (!m) return bootMsg("Proposta não encontrada", "Confira o link com a Landora.");
@@ -758,12 +766,12 @@
         console.error(e);
         return bootMsg("Não foi possível abrir a proposta", "Tente novamente em instantes ou fale com a Landora.");
       }
-      $("#boot").hidden = true;
     }
     cliente = (params.get("cliente") || D.cliente).trim().slice(0, 80);
     byId = Object.fromEntries(D.modulos.map((m) => [m.id, m]));
     KEY = "landora-proposta:" + (slug ? slug + ":" : "") + cliente.toLowerCase();
     init();
+    requestAnimationFrame(() => requestAnimationFrame(fechaBoot));
   }
 
   /* ---------- Diferenciais ---------- */
