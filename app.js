@@ -517,7 +517,7 @@
     const t = sumNow(), tl = sum(state.later);
     const row = (id) => `<tr><td>${esc(byId[id].nome)}</td><td class="num">${byId[id].preco ? brl(byId[id].preco) : "—"}</td><td class="num">${byId[id].mensal ? brl(byId[id].mensal) : "—"}</td></tr>`;
     $("#print-sheet").innerHTML = `
-      <h1><span class="pl-dark"><svg viewBox="9 -2 990 150" role="img" aria-label="Landora"><use href="#layer1"/></svg></span> Contrato</h1>
+      <h1><span class="pl-dark"><svg viewBox="9 -2 990 204" role="img" aria-label="Landora"><use href="#layer1"/><text x="219.9" y="184.4" font-family="Manrope,sans-serif" font-weight="300" font-size="25.06" letter-spacing="12.64" fill="#fff">LANDING PAGES BUILT TO CONVERT</text></svg></span> Contrato</h1>
       <p class="meta">${D.logo ? `<img alt="" src="${esc(D.logo)}" style="max-height:48px;max-width:180px;display:block;margin-bottom:8px;${D.logoFundo === "transparente" ? "background:#0A0A0A;padding:6px 10px;border-radius:8px" : ""}">` : ""}Protocolo ${a.protocolo} · ${a.data}<br>Contratante: ${esc(cliente)} · ${esc(a.nome)} (${esc(a.doc)})</p>
       <h2>Módulos contratados</h2>
       <table><thead><tr><th>Módulo</th><th class="num">Único</th><th class="num">Mensal</th></tr></thead>

@@ -649,12 +649,12 @@ input[type=text]:focus,input[type=email]:focus{outline:none;border-color:var(--b
 .dif-n{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#1E3A8A,#0057FF);margin-bottom:14px}
 .dif-n svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .dif-card h3{margin:0 0 6px;font-size:18px}.dif-card p{margin:0;color:var(--muted,rgba(255,255,255,.66));font-size:14.5px;line-height:1.55}
-.party-logo{display:block;height:30px;width:auto;margin:6px 0 4px}
+.party-logo{display:block;height:52px;width:auto;max-width:100%;margin:8px 0 6px;overflow:visible}
 .price .apartir{display:block;width:100%;font-size:12px;letter-spacing:.04em;color:var(--muted,rgba(255,255,255,.66))}
 .pill.expirada{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.3)}
 @media print{
-  #print-sheet .pl-dark{display:inline-block;background:#0A0A0A;padding:6px 12px;border-radius:8px;vertical-align:middle;margin-right:8px}
-  #print-sheet .pl-dark svg{height:22px;width:auto;display:block}
+  #print-sheet .pl-dark{display:inline-block;background:#0A0A0A;padding:8px 14px;border-radius:8px;vertical-align:middle;margin-right:8px}
+  #print-sheet .pl-dark svg{height:40px;width:auto;display:block}
 }
 
 .up-tag{display:inline-flex;align-items:center;gap:8px;margin:2px 0 10px;padding:6px 12px;border-radius:999px;background:rgba(0,87,255,.14);border:1px solid rgba(0,87,255,.5);font-size:12.5px;color:rgba(255,255,255,.85);max-width:100%}
